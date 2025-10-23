@@ -54,6 +54,32 @@
         }
         /* Clases para ocultar/mostrar elementos */
         .hidden-item { display: none; }
+
+        /* Estilo para Embeds (Videos/Imágenes) para asegurar responsividad */
+        .responsive-embed {
+            overflow: hidden;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            position: relative;
+            height: 0;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+        }
+        .responsive-embed iframe,
+        .responsive-embed video {
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+        .responsive-embed img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            display: block;
+            margin: auto;
+        }
     </style>
 </head>
 <body>
@@ -400,8 +426,9 @@
                         ${module.title}
                     </h3>
                     
-                    <!-- Contenido Clave -->
+                    <!-- Contenido Clave: Se renombró para que sea solo 'Contenido' -->
                     <div class="space-y-6 text-gray-700 ml-5 border-l-2 pl-6">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">Contenido</h4>
                         ${(module.content || []).map(c => renderContentItem(c)).join('')}
                     </div>
 
@@ -421,7 +448,7 @@
             lucide.createIcons();
         }
 
-        // --- Función auxiliar para renderizar el contenido del módulo ---
+        // --- Función auxiliar para renderizar el contenido del módulo (Soporte Multimedia) ---
         function renderContentItem(item) {
             switch (item.type) {
                 case 'heading':
@@ -450,6 +477,9 @@
                     return `<p>${paragraphWithEmojis}</p>`;
                 case 'list':
                     return `<ul class="list-disc list-inside ml-5 space-y-1 mt-2">${(item.items || []).map(i => `<li>${i}</li>`).join('')}</ul>`;
+                case 'html_embed':
+                    // Contenedor responsivo para iframe/video/imagen
+                    return `<div class="responsive-embed">${item.html || ''}</div>`;
                 default:
                     return '';
             }
@@ -598,7 +628,7 @@
                     <input type="text" class="admin-input" value="${mod.title}" oninput="courseData.modules[${mIndex}].title = this.value">
                     
                     <!-- Edición de Contenido Clave -->
-                    <h5 class="font-bold mt-4 mb-2 text-gray-700 border-t pt-3">Contenido Clave:</h5>
+                    <h5 class="font-bold mt-4 mb-2 text-gray-700 border-t pt-3">Contenido Multimedia y Texto:</h5>
                     <div id="admin-content-${mIndex}" class="space-y-4 p-3 border rounded-lg bg-gray-50">
                         ${(mod.content || []).map((c, cIndex) => renderAdminContentItem(mIndex, cIndex, c)).join('')}
                     </div>
@@ -620,6 +650,7 @@
                     <option value="heading" ${item.type === 'heading' ? 'selected' : ''}>Encabezado (h4)</option>
                     <option value="paragraph" ${item.type === 'paragraph' ? 'selected' : ''}>Párrafo</option>
                     <option value="list" ${item.type === 'list' ? 'selected' : ''}>Lista (Viñetas)</option>
+                    <option value="html_embed" ${item.type === 'html_embed' ? 'selected' : ''}>Embed HTML (Video/Imagen)</option>
                 </select>
             `;
             
@@ -628,6 +659,10 @@
                 const listItems = Array.isArray(item.items) ? item.items.join('\n') : '';
                 contentInput = `
                     <textarea placeholder="Cada línea es una viñeta" class="admin-textarea h-20 text-sm" oninput="updateListContent(${mIndex}, ${cIndex}, this.value)">${listItems}</textarea>
+                `;
+            } else if (item.type === 'html_embed') {
+                contentInput = `
+                    <textarea placeholder="Pegar código HTML (<iframe>, <img>, etc.) aquí. NO usar <script>" class="admin-textarea h-24 text-sm font-mono" oninput="courseData.modules[${mIndex}].content[${cIndex}].html = this.value">${item.html || ''}</textarea>
                 `;
             } else {
                  contentInput = `
@@ -651,8 +686,12 @@
             if (currentItem.type !== newType) {
                 if (newType === 'list') {
                     courseData.modules[mIndex].content[cIndex] = { type: 'list', items: [currentItem.text || 'Elemento de lista 1'] };
-                } else {
-                    courseData.modules[mIndex].content[cIndex] = { type: newType, text: Array.isArray(currentItem.items) ? currentItem.items.join(' ') : (currentItem.text || 'Nuevo contenido') };
+                } else if (newType === 'html_embed') {
+                    courseData.modules[mIndex].content[cIndex] = { type: 'html_embed', html: currentItem.text ? `<p>${currentItem.text}</p>` : `<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=..." title="YouTube video player" frameborder="0" allowfullscreen></iframe>` };
+                }
+                else {
+                    const textContent = Array.isArray(currentItem.items) ? currentItem.items.join(' ') : (currentItem.text || currentItem.html || 'Nuevo contenido');
+                    courseData.modules[mIndex].content[cIndex] = { type: newType, text: textContent };
                 }
             }
             renderAdminPanel(); // Re-renderizar el panel para actualizar los inputs
@@ -701,7 +740,7 @@
             courseData.modules.push({
                 id: courseData.modules.length + 1,
                 title: "Nuevo Módulo " + (courseData.modules.length + 1) + ": Título Provisional (Semana X)",
-                content: [{ type: "heading", text: "Nuevo Contenido Clave" }, { type: "paragraph", text: "Este es un nuevo párrafo de contenido para el módulo." }],
+                content: [{ type: "heading", text: "Nuevo Contenido" }, { type: "paragraph", text: "Este es un nuevo párrafo de contenido para el módulo." }],
                 questions: []
             });
             renderAdminPanel();
@@ -742,9 +781,14 @@
                     id: 1,
                     title: "Módulo 1: Fundamentos del Peer Mentoring y el Rol del Mentor (Semana 1) 🚀",
                     content: [
-                        { type: "heading", text: "Objetivo:" },
+                        { type: "heading", text: "Objetivo General" },
                         { type: "paragraph", text: "Comprender la filosofía del programa, el compromiso de Servicio Social y establecer los límites éticos y funcionales del rol del Peer Mentor." },
-                        { type: "heading", text: "Contenido Clave Detallado" },
+                        { type: "heading", text: "Video Introductorio" },
+                        { 
+                            type: "html_embed", 
+                            html: `<iframe width="560" height="315" src="https://www.youtube.com/embed/yP_FqJz4iW8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>` 
+                        },
+                        { type: "heading", text: "Contenido Detallado" },
                         { type: "paragraph", text: "1. *Filosofía del Peer Mentoring CNCI (E-Mentoring):* El modelo se centra en la *relación horizontal* (peer-to-peer) y el *apoyo psicológico-social y académico inicial* para la retención. Su principal logro es que el Mentoreado desarrolle *autonomía* y *autoeficacia* en el entorno virtual." },
                         { type: "paragraph", text: "2. *Compromiso de Servicio Social y Consistencia:* Se detallan los *6 meses de servicio* y la importancia de la *frecuencia de contacto* (ej. una reunión virtual sincrónica o contacto asincrónico por chat/email por semana). Consistencia es clave." },
                         { type: "paragraph", text: "3. *Los 4 Roles Clave del Mentor:* Su rol se divide en Guía Académico/Estratégico, Enlace/Facilitador de Recursos, Modelo a Seguir, y Primer Soporte Emocional." },
@@ -762,12 +806,13 @@
                     id: 2,
                     title: "Módulo 2: Habilidades Blandas y Referencia Efectiva (Semana 2) 💬",
                     content: [
-                        { type: "heading", text: "Objetivo:" },
+                        { type: "heading", text: "Objetivo General" },
                         { type: "paragraph", text: "Desarrollar habilidades de comunicación y empatía adaptadas al entorno virtual y aprender a referir a los alumnos a los servicios de apoyo de la CNCI." },
-                        { type: "heading", text: "Contenido Clave Detallado" },
+                        { type: "heading", text: "Contenido Detallado" },
                         { type: "paragraph", text: "1. *Técnicas de Comunicación:* Uso de preguntas abiertas, la *paráfrasis* ('Si entendí bien, lo que te preocupa es...'), y *Asertividad* para ser directo y respetuoso al establecer límites o dar indicaciones." },
                         { type: "paragraph", text: "2. *Construcción de Confianza (Rapport) a Distancia:* Se usan estrategias de *presencia social* para compensar la falta de contacto físico, como la puntualidad y el uso de la cámara en videollamadas." },
                         { type: "paragraph", text: "3. *Motivación y Metas SMART:* El Mentor ayuda a descomponer grandes objetivos en metas *SMART* (Específicas, Medibles, Alcanzables, Relevantes, con Tiempo definido) para dar un sentido de logro inmediato y control." },
+                        { type: "html_embed", html: `<img src="https://placehold.co/800x300/3b82f6/ffffff?text=Diagrama+de+Metas+SMART" alt="Diagrama ilustrativo de metas SMART">` },
                         { type: "paragraph", text: "4. *Referencia Efectiva: El Puente de 3 Pasos:* Se formaliza el protocolo: *1. Detección* (identificar señal de riesgo), *2. Conversación de Validación* (confirmar que el alumno acepta buscar ayuda), y *3. Conexión/Notificación* (proporcionar el recurso y notificar al Coordinador)." },
                     ],
                     questions: [
@@ -782,9 +827,9 @@
                     id: 3,
                     title: "Módulo 3: Dominio del Curso de Inducción y Recursos Universitarios (Semana 3) 💻",
                     content: [
-                        { type: "heading", text: "Objetivo:" },
+                        { type: "heading", text: "Objetivo General" },
                         { type: "paragraph", text: "Adquirir un conocimiento experto del Curso de Inducción, la plataforma, y todos los recursos de apoyo disponibles en la CNCI." },
-                        { type: "heading", text: "Contenido Clave Detallado" },
+                        { type: "heading", text: "Contenido Detallado" },
                         { type: "paragraph", text: "1. *Inmersión Total en el Curso de Inducción:* Es la piedra angular del apoyo. El Mentor debe conocer de memoria la estructura de los módulos y las *preguntas trampa* donde los alumnos suelen atascarse (ej. uso correcto de citación, diferencia entre actividad formativa y de evaluación)." },
                         { type: "paragraph", text: "2. *El Ecosistema Tecnológico del Mentoreado:* Identificar y explicar el uso del *LMS/Aula Virtual*, el *Portal de Servicios al Estudiante* (trámites) y el *Correo Institucional*. Estos son los tres pilares de la experiencia en línea." },
                         { type: "paragraph", text: "3. *El Mapa de Referencia CNCI:* Conocer el directorio actualizado y filtrado con los contactos directos para *Mesa de Ayuda Técnica*, *Asesoría Académica*, *Departamento de Trámites y Becas*, y *Orientación Psicopedagógica*." },
@@ -802,9 +847,9 @@
                     id: 4,
                     title: "Módulo 4: Gestión, Reporte y Plan de Acción (Semana 4) 📅",
                     content: [
-                        { type: "heading", text: "Objetivo:" },
+                        { type: "heading", text: "Objetivo General" },
                         { type: "paragraph", text: "Asegurar el entendimiento del proceso administrativo del Servicio Social y la elaboración de un plan de trabajo estructurado para el período de 6 meses." },
-                        { type: "heading", text: "Contenido Clave Detallado" },
+                        { type: "heading", text: "Contenido Detallado" },
                         { type: "paragraph", text: "1. *Llenado Correcto del Reporte del Mentor (Bitácora de Servicio):* Es la evidencia de la labor de Servicio Social. Debe incluir la *descripción clara de la actividad*, la *duración (horas)* y el *objetivo de la sesión de mentoría*." },
                         { type: "paragraph", text: "2. *Plan de Actividades a 6 Meses y Prohibiciones:* Se divide en *Fase de Inicio* (Inducción y LMS), *Fase de Mantenimiento* (Estrategias Académicas), y *Fase de Cierre* (Evaluación). Prohibición clave: *Nunca* manejar claves de acceso ni hacer tareas." },
                         { type: "paragraph", text: "3. *Elaboración del Plan de Contacto y Contingencia:* Taller práctico para definir herramientas de comunicación y un *plan de contingencia* ante la falta de respuesta del Mentoreado (pasos a seguir tras dos contactos sin respuesta)." },
