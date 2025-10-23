@@ -152,9 +152,6 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Establecer el nivel de logs para debug (opcional)
-        setLogLevel('Debug');
-
         // Variables Globales Proporcionadas por el Entorno
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cnci-mentor-app';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { projectId: "demo-project" };
@@ -210,29 +207,31 @@
             navigateToModule(currentModuleIndex, true); // Asegurar que la vista de mentor se refresque
         };
 
-        // --- Guardar Datos en Firestore (Ya era global) ---
+        // --- Guardar Datos en Firestore (Ya era global, adaptado para modo demo) ---
         window.saveCourseData = async () => {
+            const adminMessageEl = document.getElementById('admin-message');
+            adminMessageEl.classList.remove('text-green-600', 'text-red-500');
+
             if (!db) {
-                document.getElementById('admin-message').textContent = 'Error: Firebase no está inicializado.';
+                adminMessageEl.textContent = '⚠️ Advertencia: No se pudo guardar. La base de datos está en Modo Demo.';
+                adminMessageEl.classList.add('text-red-500');
                 return;
             }
 
             try {
                 const docRef = doc(db, COURSE_DOCUMENT_PATH);
                 await setDoc(docRef, courseData);
-                document.getElementById('admin-message').textContent = '✅ ¡Curso guardado exitosamente en la base de datos!';
-                document.getElementById('admin-message').classList.remove('text-red-500');
-                document.getElementById('admin-message').classList.add('text-green-600');
+                adminMessageEl.textContent = '✅ ¡Curso guardado exitosamente en la base de datos!';
+                adminMessageEl.classList.add('text-green-600');
                 
                 setTimeout(() => {
-                    document.getElementById('admin-message').textContent = '';
+                    adminMessageEl.textContent = '';
                 }, 3000);
                 
             } catch (error) {
                 console.error("Error al guardar los datos del curso:", error);
-                document.getElementById('admin-message').textContent = `❌ Error al guardar: ${error.message}`;
-                document.getElementById('admin-message').classList.remove('text-green-600');
-                document.getElementById('admin-message').classList.add('text-red-500');
+                adminMessageEl.textContent = `❌ Error al guardar: ${error.message}`;
+                adminMessageEl.classList.add('text-red-500');
             }
         };
         
@@ -240,75 +239,82 @@
         // ********* INICIALIZACIÓN DE LA APP *********
         // ***************************************
 
-        // --- Inicialización y Autenticación de Firebase ---
+        // --- Inicialización y Autenticación de Firebase (Con manejo de error robusto) ---
         async function initFirebaseAndLoadContent() {
+            let firebaseInitialized = false;
+
+            // 1. Intentar inicializar y autenticar con Firebase (Puede fallar por invalid-api-key)
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 
-                // CORRECCIÓN PRINCIPAL: Adjuntar el event listener del botón de Admin
-                // Ahora llama a la función globalmente disponible: window.promptAdminPassword
-                document.getElementById('admin-access-btn').addEventListener('click', window.promptAdminPassword);
-
-                // NUEVA CORRECCIÓN: Adjuntar event listeners para botones de navegación
-                const prevBtn = document.getElementById('prev-module-btn');
-                const nextBtn = document.getElementById('next-module-btn');
-                
-                if (prevBtn) {
-                     prevBtn.addEventListener('click', () => {
-                        navigateToModule(currentModuleIndex - 1);
-                    });
-                }
-
-                if (nextBtn) {
-                    nextBtn.addEventListener('click', () => {
-                        navigateToModule(currentModuleIndex + 1);
-                    });
-                }
-                
-                // NUEVA CORRECCIÓN: Event delegation para las pestañas de módulos
-                const tabsContainer = document.getElementById('module-tabs');
-                if (tabsContainer) {
-                    tabsContainer.addEventListener('click', (event) => {
-                        const target = event.target.closest('.module-tab-item');
-                        if (target) {
-                            const index = parseInt(target.getAttribute('data-index'));
-                            if (!isNaN(index)) {
-                                navigateToModule(index);
-                            }
-                        }
-                    });
-                }
-
-                // Manejo de la autenticación
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        document.getElementById('auth-status').textContent = `Conectado (ID: ${userId.substring(0, 8)}...)`;
-                        // Una vez autenticado, cargamos el contenido en tiempo real
-                        loadCourseData();
-                    } else {
-                        if (!initialAuthToken) {
-                            await signInAnonymously(auth);
-                        }
-                    }
-                });
-
+                // Intentar autenticación
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
                 } else {
                     await signInAnonymously(auth);
                 }
+                
+                // Autenticación exitosa, configurar el listener de datos
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('auth-status').textContent = `Conectado (ID: ${userId.substring(0, 8)}...)`;
+                        loadCourseData(); // Cargar datos en tiempo real
+                    }
+                });
+                firebaseInitialized = true;
 
             } catch (error) {
-                console.error("Error al inicializar Firebase o al autenticar:", error);
-                document.getElementById('loading-spinner').textContent = 'Error al cargar el servicio de la aplicación.';
+                // El error de invalid-api-key o cualquier otro error de inicialización cae aquí
+                console.error("Error FATAL de Firebase (API Key/Autenticación). Carga de datos de respaldo activada. ", error);
+                
+                // 2. Fallback: Cargar datos iniciales estáticos (Modo Demo)
+                courseData = JSON.parse(JSON.stringify(initialCourseData)); // Clonar para que los cambios en admin no afecten el original
+                document.getElementById('loading-spinner').classList.add('hidden-item');
+                document.getElementById('auth-status').textContent = '⚠️ Modo Demo (Sin Base de Datos)';
+                
+                // Marcar db/auth como nulo para que saveCourseData sepa que no puede guardar
+                db = null;
+                auth = null;
+            }
+            
+            // 3. Configurar Listeners y Renderizado Inicial (Esto siempre debe ejecutarse)
+            
+            // Adjuntar listener del botón de Admin (corregido)
+            document.getElementById('admin-access-btn').addEventListener('click', window.promptAdminPassword);
+
+            // Adjuntar event listeners para botones de navegación
+            document.getElementById('prev-module-btn').addEventListener('click', () => {
+                navigateToModule(currentModuleIndex - 1);
+            });
+
+            document.getElementById('next-module-btn').addEventListener('click', () => {
+                navigateToModule(currentModuleIndex + 1);
+            });
+            
+            // Event delegation para las pestañas de módulos
+            document.getElementById('module-tabs').addEventListener('click', (event) => {
+                const target = event.target.closest('.module-tab-item');
+                if (target) {
+                    const index = parseInt(target.getAttribute('data-index'));
+                    if (!isNaN(index)) {
+                        navigateToModule(index);
+                    }
+                }
+            });
+
+            // Solo renderizar inmediatamente si estamos en modo Demo (si firebase no se inicializó)
+            if (!firebaseInitialized) {
+                renderCourseStructure(); 
+                navigateToModule(currentModuleIndex, true); 
             }
         }
 
         // --- Carga de Datos en Tiempo Real (onSnapshot) ---
         function loadCourseData() {
+             // Solo se ejecuta si Firebase inicializó correctamente
             const courseDocRef = doc(db, COURSE_DOCUMENT_PATH);
 
             onSnapshot(courseDocRef, (docSnapshot) => {
@@ -316,7 +322,7 @@
                     courseData = docSnapshot.data();
                 } else {
                     courseData = initialCourseData;
-                    saveCourseData(); // Guarda los datos iniciales
+                    window.saveCourseData(); // Guarda los datos iniciales
                 }
                 document.getElementById('loading-spinner').classList.add('hidden-item');
                 renderCourseStructure(); // Renderiza la estructura (tabs y título)
@@ -338,11 +344,11 @@
             
             const tabsContainer = document.getElementById('module-tabs');
             // Eliminado onclick, ahora se usa data-index para el event delegation
-            tabsContainer.innerHTML = courseData.modules.map((module, index) => `
+            tabsContainer.innerHTML = (courseData.modules || []).map((module, index) => `
                 <button data-index="${index}" 
                         class="module-tab-item py-3 px-6 text-gray-500 font-medium text-lg focus:outline-none 
                         ${index === currentModuleIndex ? 'active' : ''}">
-                    ${index + 1}. ${module.title.substring(0, module.title.indexOf('(')).trim()}
+                    ${index + 1}. ${module.title.substring(0, module.title.indexOf('(') > -1 ? module.title.indexOf('(') : module.title.length).trim()}
                 </button>
             `).join('');
             
@@ -353,8 +359,8 @@
 
         // --- Navegación entre Módulos (GLOBAL) ---
         window.navigateToModule = (index, forceRender = false) => {
-            if (index < 0 || index >= courseData.modules.length) {
-                return; // Fuera de límites
+            if (!courseData.modules || index < 0 || index >= courseData.modules.length) {
+                return; // Fuera de límites o datos no cargados
             }
             if (index === currentModuleIndex && !forceRender) {
                 return; // Ya está en ese módulo
@@ -396,7 +402,7 @@
                     
                     <!-- Contenido Clave -->
                     <div class="space-y-6 text-gray-700 ml-5 border-l-2 pl-6">
-                        ${module.content.map(c => renderContentItem(c)).join('')}
+                        ${(module.content || []).map(c => renderContentItem(c)).join('')}
                     </div>
 
                     <!-- Preguntas de Comprensión -->
@@ -405,7 +411,7 @@
                             <i data-lucide="check-circle" class="w-6 h-6 mr-2"></i> Cuestionario de Comprensión
                         </h4>
                         <div class="space-y-6">
-                            ${module.questions.map((q, qIndex) => renderQuestion(currentModuleIndex, qIndex, q)).join('')}
+                            ${(module.questions || []).map((q, qIndex) => renderQuestion(currentModuleIndex, qIndex, q)).join('')}
                         </div>
                     </div>` : ''}
 
@@ -443,7 +449,7 @@
                         
                     return `<p>${paragraphWithEmojis}</p>`;
                 case 'list':
-                    return `<ul class="list-disc list-inside ml-5 space-y-1 mt-2">${item.items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+                    return `<ul class="list-disc list-inside ml-5 space-y-1 mt-2">${(item.items || []).map(i => `<li>${i}</li>`).join('')}</ul>`;
                 default:
                     return '';
             }
@@ -455,7 +461,7 @@
                 <div id="q-${moduleIndex}-${qIndex}" class="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <p class="font-bold text-gray-800 mb-3">${qIndex + 1}. ${question.text}</p>
                     <div class="space-y-2">
-                        ${question.options.map((option, oIndex) => `
+                        ${(question.options || []).map((option, oIndex) => `
                             <div onclick="checkAnswer(${moduleIndex}, ${qIndex}, ${oIndex}, this)" 
                                  class="question-option p-3 bg-white rounded-md border border-gray-200 shadow-sm text-sm flex items-center">
                                 <span class="font-bold mr-2 w-5">${String.fromCharCode(65 + oIndex)})</span>
@@ -691,9 +697,10 @@
 
         // --- Funciones CRUD de Módulos (GLOBAL) ---
         window.addModule = () => {
+            if (!courseData.modules) courseData.modules = [];
             courseData.modules.push({
-                id: (courseData.modules.length || 0) + 1,
-                title: "Nuevo Módulo " + ((courseData.modules.length || 0) + 1) + ": Título Provisional (Semana X)",
+                id: courseData.modules.length + 1,
+                title: "Nuevo Módulo " + (courseData.modules.length + 1) + ": Título Provisional (Semana X)",
                 content: [{ type: "heading", text: "Nuevo Contenido Clave" }, { type: "paragraph", text: "Este es un nuevo párrafo de contenido para el módulo." }],
                 questions: []
             });
@@ -718,7 +725,10 @@
         window.removeContentItem = (mIndex, cIndex) => { courseData.modules[mIndex].content.splice(cIndex, 1); renderAdminPanel(); };
         window.addQuestion = (mIndex) => { courseData.modules[mIndex].questions.push({ text: "¿Nueva pregunta de comprensión?", options: ["Opción A", "Opción B", "Opción C"], correctIndex: 0 }); renderAdminPanel(); };
         window.removeQuestion = (mIndex, qIndex) => { courseData.modules[mIndex].questions.splice(qIndex, 1); renderAdminPanel(); };
-        window.addOption = (mIndex, qIndex) => { courseData.modules[mIndex].questions[qIndex].options.push(`Nueva Opción ${String.fromCharCode(65 + (courseData.modules[mIndex].questions[qIndex].options.length || 0))}`); renderAdminPanel(); };
+        window.addOption = (mIndex, qIndex) => { 
+            if (!courseData.modules[mIndex].questions[qIndex].options) courseData.modules[mIndex].questions[qIndex].options = [];
+            courseData.modules[mIndex].questions[qIndex].options.push(`Nueva Opción ${String.fromCharCode(65 + (courseData.modules[mIndex].questions[qIndex].options.length))}`); renderAdminPanel(); 
+        };
         window.addReference = () => { if (!courseData.references) courseData.references = []; courseData.references.push({ author: "Autor, A. (Año).", title: "Título del Artículo/Libro.", source: "Fuente o Editorial." }); renderAdminPanel(); };
         window.removeReference = (rIndex) => { courseData.references.splice(rIndex, 1); renderAdminPanel(); };
 
