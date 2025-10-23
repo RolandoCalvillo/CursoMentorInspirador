@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNCI Mentor | Guía de Éxito al Nuevo Ingreso</title>
+    <!-- Carga de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carga de Fuente (Inter es profesional y legible) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Carga de Iconos de Lucide (para botones y UI) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        /* Estilos generales y tipografía */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa; /* Fondo muy claro */
+            transition: background-color 0.3s;
+        }
+        /* Color principal de la universidad (Azul Profundo/Indigo) */
+        .cnci-primary { background-color: #3b82f6; } /* Tailwind blue-500 */
+        .cnci-text-primary { color: #3b82f6; }
+        .cnci-border-primary { border-color: #3b82f6; }
+
+        /* Estilos para las pestañas de navegación */
+        .module-tab-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        .module-tab-item:hover {
+            color: #2563eb; /* blue-600 */
+        }
+        .module-tab-item.active {
+            font-weight: 700;
+            color: #3b82f6; /* blue-500 */
+            border-color: #3b82f6;
+        }
+        
+        .question-option {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .question-option:hover:not(.disabled) {
+            background-color: #eff6ff; /* blue-50 on hover */
+        }
+        /* Estilos para el panel de administración */
+        .admin-input, .admin-textarea, .admin-select {
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+        /* Clases para ocultar/mostrar elementos */
+        .hidden-item { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor Principal del Curso -->
+    <div id="app-container" class="min-h-screen pb-20">
+        <!-- Encabezado Fijo -->
+        <header class="cnci-primary text-white shadow-lg sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <h1 id="course-title-header" class="text-2xl font-extrabold tracking-tight">Cargando Título...</h1>
+                <div id="auth-status" class="text-sm font-medium opacity-80">
+                    <!-- Estado de autenticación de Firebase -->
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenido del Curso (Sección para Mentores) -->
+        <main id="course-content-view" class="max-w-7xl mx-auto px-4 mt-8">
+            <!-- Título y Descripción -->
+            <section class="text-center mb-10">
+                <h2 id="course-main-title" class="text-4xl font-black cnci-text-primary mb-2"></h2>
+                <p id="course-description" class="text-gray-600 text-lg"></p>
+                <div id="loading-spinner" class="mt-8 text-center text-gray-500">
+                    <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Cargando curso...
+                </div>
+            </section>
+            
+            <!-- Navegación de Módulos (Tabs) -->
+            <div id="module-tabs" class="border-b border-gray-200 mb-8 overflow-x-auto whitespace-nowrap">
+                <!-- Las pestañas se renderizarán aquí -->
+            </div>
+
+            <!-- Contenido del Módulo Activo -->
+            <div id="modules-container" class="max-w-4xl mx-auto space-y-10">
+                <!-- El contenido del módulo activo se renderizará aquí -->
+            </div>
+            
+            <!-- Botones de Navegación (Anterior/Siguiente) -->
+            <div id="module-nav-buttons" class="max-w-4xl mx-auto flex justify-between mt-10">
+                <button id="prev-module-btn" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-200 disabled:opacity-50 flex items-center">
+                    <i data-lucide="chevron-left" class="w-5 h-5 mr-1"></i> Anterior
+                </button>
+                <button id="next-module-btn" 
+                        class="px-4 py-2 cnci-primary text-white rounded-lg hover:bg-blue-600 transition duration-200 disabled:opacity-50 flex items-center">
+                    Siguiente Módulo <i data-lucide="chevron-right" class="w-5 h-5 ml-1"></i>
+                </button>
+            </div>
+            
+            <!-- Referencias Bibliográficas (Aparece al final del último módulo) -->
+            <section id="references-section" class="pt-8 border-t border-gray-200 mt-12 max-w-4xl mx-auto hidden-item">
+                <h3 class="text-2xl font-bold cnci-text-primary mb-6">📚 Referencias Bibliográficas Confiables</h3>
+                <ul id="references-list" class="space-y-3 text-gray-700 list-inside">
+                    <!-- Las referencias se renderizarán aquí -->
+                </ul>
+            </section>
+        </main>
+        
+        <!-- Panel de Administración (Inicialmente oculto) -->
+        <div id="admin-panel" class="fixed inset-0 bg-white z-50 overflow-y-auto p-8 hidden-item">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex justify-between items-center pb-4 border-b mb-6">
+                    <h2 class="text-3xl font-extrabold text-red-600">🛠️ Panel de Administración del Curso</h2>
+                    <!-- El onclick de closeAdminPanel sigue siendo válido ya que está global -->
+                    <button onclick="closeAdminPanel()" class="text-gray-500 hover:text-gray-900 transition">
+                        <i data-lucide="x" class="h-6 w-6"></i>
+                    </button>
+                </div>
+                <div id="admin-content-editor" class="space-y-8">
+                    <!-- Contenido editable del curso -->
+                </div>
+                <div class="mt-8 pt-6 border-t">
+                    <!-- El onclick de saveCourseData sigue siendo válido ya que está global -->
+                    <button onclick="saveCourseData()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-md">
+                        Guardar Todos los Cambios del Curso
+                    </button>
+                    <p id="admin-message" class="mt-3 text-center text-sm text-gray-500"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de Acceso al Panel de Administración (Discreto) -->
+        <button id="admin-access-btn" 
+                class="fixed bottom-4 right-4 bg-gray-300 text-gray-800 p-2 rounded-full shadow-lg hover:bg-gray-400 transition duration-300 font-bold text-xs w-8 h-8 flex items-center justify-center opacity-75 hover:opacity-100 z-40">
+            A
+        </button>
+    </div>
+
+    <!-- Carga y Configuración de Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Establecer el nivel de logs para debug (opcional)
+        setLogLevel('Debug');
+
+        // Variables Globales Proporcionadas por el Entorno
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cnci-mentor-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { projectId: "demo-project" };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+        let courseData = {};
+        let userId = null;
+        let currentModuleIndex = 0; 
+        const ADMIN_PASSWORD = "admin123";
+        const COURSE_DOCUMENT_PATH = `/artifacts/${appId}/public/data/mentor_course/course_data`;
+
+        // ***************************************
+        // ********* PANEL DE ADMINISTRACIÓN (GLOBALIZADO) *********
+        // ***************************************
+
+        // --- Acceso al Panel de Administración (Hecho GLOBAL para asegurar alcance) ---
+        window.promptAdminPassword = () => {
+            const password = window.prompt("Ingrese la contraseña de administrador:");
+            if (password === ADMIN_PASSWORD) {
+                window.openAdminPanel();
+            } else if (password !== null) {
+                // Usamos un modal simulado en lugar de alert
+                const appContainer = document.getElementById('app-container');
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full text-center">
+                        <h3 class="text-xl font-bold text-red-600 mb-4">Acceso Denegado 🔒</h3>
+                        <p class="text-gray-700 mb-6">Contraseña incorrecta. Por favor, inténtelo de nuevo.</p>
+                        <button onclick="this.parentNode.parentNode.remove()" class="cnci-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">Entendido</button>
+                    </div>
+                `;
+                appContainer.appendChild(modal);
+            }
+        };
+
+        // --- Apertura del Panel (Hecha GLOBAL para asegurar alcance) ---
+        window.openAdminPanel = () => {
+            document.getElementById('admin-panel').classList.remove('hidden-item');
+            document.getElementById('admin-panel').classList.add('active'); // Marca como activo
+            document.getElementById('course-content-view').classList.add('hidden-item');
+            document.getElementById('admin-access-btn').classList.add('hidden-item');
+            renderAdminPanel();
+        }
+
+        window.closeAdminPanel = () => {
+            document.getElementById('admin-panel').classList.add('hidden-item');
+            document.getElementById('admin-panel').classList.remove('active');
+            document.getElementById('course-content-view').classList.remove('hidden-item');
+            document.getElementById('admin-access-btn').classList.remove('hidden-item');
+            navigateToModule(currentModuleIndex, true); // Asegurar que la vista de mentor se refresque
+        };
+
+        // --- Guardar Datos en Firestore (Ya era global) ---
+        window.saveCourseData = async () => {
+            if (!db) {
+                document.getElementById('admin-message').textContent = 'Error: Firebase no está inicializado.';
+                return;
+            }
+
+            try {
+                const docRef = doc(db, COURSE_DOCUMENT_PATH);
+                await setDoc(docRef, courseData);
+                document.getElementById('admin-message').textContent = '✅ ¡Curso guardado exitosamente en la base de datos!';
+                document.getElementById('admin-message').classList.remove('text-red-500');
+                document.getElementById('admin-message').classList.add('text-green-600');
+                
+                setTimeout(() => {
+                    document.getElementById('admin-message').textContent = '';
+                }, 3000);
+                
+            } catch (error) {
+                console.error("Error al guardar los datos del curso:", error);
+                document.getElementById('admin-message').textContent = `❌ Error al guardar: ${error.message}`;
+                document.getElementById('admin-message').classList.remove('text-green-600');
+                document.getElementById('admin-message').classList.add('text-red-500');
+            }
+        };
+        
+        // ***************************************
+        // ********* INICIALIZACIÓN DE LA APP *********
+        // ***************************************
+
+        // --- Inicialización y Autenticación de Firebase ---
+        async function initFirebaseAndLoadContent() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // CORRECCIÓN PRINCIPAL: Adjuntar el event listener del botón de Admin
+                // Ahora llama a la función globalmente disponible: window.promptAdminPassword
+                document.getElementById('admin-access-btn').addEventListener('click', window.promptAdminPassword);
+
+                // NUEVA CORRECCIÓN: Adjuntar event listeners para botones de navegación
+                const prevBtn = document.getElementById('prev-module-btn');
+                const nextBtn = document.getElementById('next-module-btn');
+                
+                if (prevBtn) {
+                     prevBtn.addEventListener('click', () => {
+                        navigateToModule(currentModuleIndex - 1);
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        navigateToModule(currentModuleIndex + 1);
+                    });
+                }
+                
+                // NUEVA CORRECCIÓN: Event delegation para las pestañas de módulos
+                const tabsContainer = document.getElementById('module-tabs');
+                if (tabsContainer) {
+                    tabsContainer.addEventListener('click', (event) => {
+                        const target = event.target.closest('.module-tab-item');
+                        if (target) {
+                            const index = parseInt(target.getAttribute('data-index'));
+                            if (!isNaN(index)) {
+                                navigateToModule(index);
+                            }
+                        }
+                    });
+                }
+
+                // Manejo de la autenticación
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('auth-status').textContent = `Conectado (ID: ${userId.substring(0, 8)}...)`;
+                        // Una vez autenticado, cargamos el contenido en tiempo real
+                        loadCourseData();
+                    } else {
+                        if (!initialAuthToken) {
+                            await signInAnonymously(auth);
+                        }
+                    }
+                });
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+            } catch (error) {
+                console.error("Error al inicializar Firebase o al autenticar:", error);
+                document.getElementById('loading-spinner').textContent = 'Error al cargar el servicio de la aplicación.';
+            }
+        }
+
+        // --- Carga de Datos en Tiempo Real (onSnapshot) ---
+        function loadCourseData() {
+            const courseDocRef = doc(db, COURSE_DOCUMENT_PATH);
+
+            onSnapshot(courseDocRef, (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    courseData = docSnapshot.data();
+                } else {
+                    courseData = initialCourseData;
+                    saveCourseData(); // Guarda los datos iniciales
+                }
+                document.getElementById('loading-spinner').classList.add('hidden-item');
+                renderCourseStructure(); // Renderiza la estructura (tabs y título)
+                navigateToModule(currentModuleIndex, true); // Renderiza el módulo activo
+                if (document.getElementById('admin-panel').classList.contains('active')) {
+                     renderAdminPanel(); // Si el admin está abierto, actualizarlo
+                }
+            }, (error) => {
+                console.error("Error al obtener datos del curso en tiempo real:", error);
+                document.getElementById('loading-spinner').textContent = 'Error al cargar el contenido del curso.';
+            });
+        }
+        
+        // --- Renderiza la estructura principal (Título y Pestañas de Navegación) ---
+        function renderCourseStructure() {
+            document.getElementById('course-main-title').textContent = courseData.title || 'Curso de Capacitación';
+            document.getElementById('course-title-header').textContent = courseData.title || 'Curso de Capacitación';
+            document.getElementById('course-description').textContent = courseData.description || 'Descripción del curso.';
+            
+            const tabsContainer = document.getElementById('module-tabs');
+            // Eliminado onclick, ahora se usa data-index para el event delegation
+            tabsContainer.innerHTML = courseData.modules.map((module, index) => `
+                <button data-index="${index}" 
+                        class="module-tab-item py-3 px-6 text-gray-500 font-medium text-lg focus:outline-none 
+                        ${index === currentModuleIndex ? 'active' : ''}">
+                    ${index + 1}. ${module.title.substring(0, module.title.indexOf('(')).trim()}
+                </button>
+            `).join('');
+            
+            // Renderizar referencias solo la estructura (el contenido se maneja en navigateToModule)
+            renderReferencesStructure();
+            lucide.createIcons();
+        }
+
+        // --- Navegación entre Módulos (GLOBAL) ---
+        window.navigateToModule = (index, forceRender = false) => {
+            if (index < 0 || index >= courseData.modules.length) {
+                return; // Fuera de límites
+            }
+            if (index === currentModuleIndex && !forceRender) {
+                return; // Ya está en ese módulo
+            }
+
+            currentModuleIndex = index;
+            
+            // 1. Actualizar estado de las pestañas
+            renderCourseStructure(); 
+            
+            // 2. Renderizar el contenido del módulo
+            renderActiveModule(); 
+
+            // 3. Gestionar botones de Anterior/Siguiente
+            document.getElementById('prev-module-btn').disabled = currentModuleIndex === 0;
+            document.getElementById('next-module-btn').disabled = currentModuleIndex === courseData.modules.length - 1;
+            
+            // 4. Mostrar referencias solo en el último módulo
+            const referencesSection = document.getElementById('references-section');
+            if (currentModuleIndex === courseData.modules.length - 1) {
+                referencesSection.classList.remove('hidden-item');
+            } else {
+                referencesSection.classList.add('hidden-item');
+            }
+        };
+
+        // --- Renderiza solo el módulo activo ---
+        function renderActiveModule() {
+            const module = courseData.modules[currentModuleIndex];
+            const modulesContainer = document.getElementById('modules-container');
+            modulesContainer.innerHTML = '';
+            
+            const moduleHtml = `
+                <div id="module-content" class="module-card bg-white p-6 md:p-8 rounded-xl shadow-lg border-t-4 border-blue-500 transition duration-300">
+                    <h3 class="text-3xl font-extrabold text-gray-800 mb-6 flex items-center">
+                        <span class="cnci-primary text-white text-base font-bold w-10 h-10 rounded-full flex items-center justify-center mr-3">${currentModuleIndex + 1}</span>
+                        ${module.title}
+                    </h3>
+                    
+                    <!-- Contenido Clave -->
+                    <div class="space-y-6 text-gray-700 ml-5 border-l-2 pl-6">
+                        ${module.content.map(c => renderContentItem(c)).join('')}
+                    </div>
+
+                    <!-- Preguntas de Comprensión -->
+                    ${module.questions && module.questions.length > 0 ? `<div class="mt-10 pt-6 border-t border-blue-100">
+                        <h4 class="text-2xl font-bold cnci-text-primary mb-5 flex items-center">
+                            <i data-lucide="check-circle" class="w-6 h-6 mr-2"></i> Cuestionario de Comprensión
+                        </h4>
+                        <div class="space-y-6">
+                            ${module.questions.map((q, qIndex) => renderQuestion(currentModuleIndex, qIndex, q)).join('')}
+                        </div>
+                    </div>` : ''}
+
+                </div>
+            `;
+            modulesContainer.insertAdjacentHTML('beforeend', moduleHtml);
+            lucide.createIcons();
+        }
+
+        // --- Función auxiliar para renderizar el contenido del módulo ---
+        function renderContentItem(item) {
+            switch (item.type) {
+                case 'heading':
+                    return `<h4 class="text-xl font-semibold mt-6 mb-2 text-blue-600">${item.text}</h4>`;
+                case 'paragraph':
+                    // Reemplazo de markdown simple para negritas
+                    const formattedText = item.text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+                    // Usar emojis para visualización atractiva
+                    const paragraphWithEmojis = formattedText
+                        .replace(/Filosofía/g, '💡 Filosofía')
+                        .replace(/Compromiso/g, '🤝 Compromiso')
+                        .replace(/Roles/g, '👤 Roles')
+                        .replace(/Ética/g, '⚖️ Ética')
+                        .replace(/Técnicas/g, '🗣️ Técnicas')
+                        .replace(/Confianza/g, '🤗 Confianza')
+                        .replace(/Motivación/g, '🎯 Motivación')
+                        .replace(/Referencia/g, '🔗 Referencia')
+                        .replace(/Inmersión/g, '📖 Inmersión')
+                        .replace(/Ecosistema/g, '☁️ Ecosistema')
+                        .replace(/Mapa/g, '🗺️ Mapa')
+                        .replace(/Estrategias/g, '🧠 Estrategias')
+                        .replace(/Llenado/g, '📝 Llenado')
+                        .replace(/Plan de Actividades/g, '🗓️ Plan de Actividades')
+                        .replace(/Plan de Contacto/g, '📞 Plan de Contacto');
+                        
+                    return `<p>${paragraphWithEmojis}</p>`;
+                case 'list':
+                    return `<ul class="list-disc list-inside ml-5 space-y-1 mt-2">${item.items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+                default:
+                    return '';
+            }
+        }
+
+        // --- Renderizado de Pregunta de Opción Múltiple ---
+        function renderQuestion(moduleIndex, qIndex, question) {
+            return `
+                <div id="q-${moduleIndex}-${qIndex}" class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <p class="font-bold text-gray-800 mb-3">${qIndex + 1}. ${question.text}</p>
+                    <div class="space-y-2">
+                        ${question.options.map((option, oIndex) => `
+                            <div onclick="checkAnswer(${moduleIndex}, ${qIndex}, ${oIndex}, this)" 
+                                 class="question-option p-3 bg-white rounded-md border border-gray-200 shadow-sm text-sm flex items-center">
+                                <span class="font-bold mr-2 w-5">${String.fromCharCode(65 + oIndex)})</span>
+                                <span class="flex-1">${option}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="feedback-${moduleIndex}-${qIndex}" class="mt-3 text-sm font-semibold hidden-item transition duration-500"></div>
+                </div>
+            `;
+        }
+
+        // --- Lógica del Quiz (Verificación de Respuesta) (GLOBAL) ---
+        window.checkAnswer = (moduleIndex, qIndex, selectedIndex, element) => {
+            const questionData = courseData.modules[moduleIndex].questions[qIndex];
+            const feedbackEl = document.getElementById(`feedback-${moduleIndex}-${qIndex}`);
+            const questionContainer = document.getElementById(`q-${moduleIndex}-${qIndex}`);
+            const options = Array.from(questionContainer.querySelectorAll('.question-option'));
+
+            // Prevenir múltiples clics
+            if (options[0].classList.contains('disabled')) return;
+            options.forEach(opt => opt.classList.add('disabled'));
+
+            const isCorrect = selectedIndex === questionData.correctIndex;
+            const correctOption = options[questionData.correctIndex];
+
+            // Marcar la respuesta seleccionada
+            element.classList.remove('bg-white', 'border-gray-200');
+            element.classList.add(isCorrect ? 'bg-green-100' : 'bg-red-100');
+            element.classList.add(isCorrect ? 'border-green-500' : 'border-red-500');
+
+            // Mostrar feedback
+            feedbackEl.classList.remove('hidden-item');
+            if (isCorrect) {
+                feedbackEl.textContent = '¡Respuesta Correcta! ✅ Excelente comprensión del tema.';
+                feedbackEl.classList.remove('text-red-600');
+                feedbackEl.classList.add('text-green-600');
+            } else {
+                feedbackEl.textContent = `Respuesta Incorrecta. ❌ La opción correcta era: ${String.fromCharCode(65 + questionData.correctIndex)}).`;
+                feedbackEl.classList.remove('text-green-600');
+                feedbackEl.classList.add('text-red-600');
+                // Resaltar la correcta
+                correctOption.classList.add('bg-green-200', 'border-green-500');
+            }
+        };
+        
+        // --- Renderizado de Referencias ---
+        function renderReferencesStructure() {
+            const listEl = document.getElementById('references-list');
+            listEl.innerHTML = '';
+            
+            if (courseData.references && courseData.references.length > 0) {
+                 courseData.references.forEach(ref => {
+                    listEl.innerHTML += `
+                        <li class="flex items-start">
+                            <i data-lucide="book-open" class="w-4 h-4 mt-1 mr-2 flex-shrink-0 text-blue-500"></i>
+                            <span>
+                                <strong>${ref.author}</strong> 
+                                <em>${ref.title}.</em> 
+                                ${ref.source}
+                            </span>
+                        </li>
+                    `;
+                 });
+            } else {
+                 document.getElementById('references-list').innerHTML = `<li class="text-gray-500">No hay referencias cargadas.</li>`;
+            }
+        }
+
+
+        // ***************************************
+        // ********* PANEL DE ADMINISTRACIÓN (FUNCIONES DE RENDERIZADO GLOBALIZADAS) *********
+        // ***************************************
+
+        // --- Renderizado del Panel de Administración ---
+        function renderAdminPanel() {
+            const editorEl = document.getElementById('admin-content-editor');
+            editorEl.innerHTML = ''; 
+
+            // 1. Edición de Título y Descripción
+            editorEl.innerHTML += `
+                <div class="p-6 bg-gray-100 rounded-lg shadow-inner">
+                    <h3 class="text-xl font-bold mb-3 text-gray-700">Información General del Curso</h3>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Título:</label>
+                    <input id="admin-title" type="text" value="${courseData.title || ''}" class="admin-input" oninput="courseData.title = this.value">
+                    
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción:</label>
+                    <textarea id="admin-description" class="admin-textarea h-20" oninput="courseData.description = this.value">${courseData.description || ''}</textarea>
+                </div>
+            `;
+            
+            // 2. Edición de Referencias
+             editorEl.innerHTML += `
+                <div class="p-6 bg-yellow-50 rounded-lg shadow-inner border border-yellow-200">
+                    <h3 class="text-xl font-bold mb-3 text-gray-700">Gestión de Referencias Bibliográficas</h3>
+                    <div id="admin-references-container" class="space-y-4">
+                        ${(courseData.references || []).map((ref, rIndex) => `
+                            <div class="p-3 border rounded-md bg-white flex items-center space-x-3">
+                                <div class="flex-grow">
+                                    <input type="text" placeholder="Autor y Año" class="admin-input p-1 my-1 text-sm" value="${ref.author}" oninput="courseData.references[${rIndex}].author = this.value">
+                                    <input type="text" placeholder="Título" class="admin-input p-1 my-1 text-sm" value="${ref.title}" oninput="courseData.references[${rIndex}].title = this.value">
+                                    <input type="text" placeholder="Fuente/Editorial" class="admin-input p-1 my-1 text-sm" value="${ref.source}" oninput="courseData.references[${rIndex}].source = this.value">
+                                </div>
+                                <button onclick="removeReference(${rIndex})" class="text-red-500 hover:text-red-700 p-2 rounded-full bg-red-100 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="addReference()" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 rounded-lg transition duration-200 shadow-md flex items-center justify-center"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Añadir Referencia</button>
+                </div>
+            `;
+            
+            // 3. Edición de Módulos
+            editorEl.innerHTML += `
+                <h3 class="text-2xl font-bold mt-8 mb-4 text-gray-800">Módulos del Curso</h3>
+                <div id="admin-modules-container" class="space-y-10">
+                    ${(courseData.modules || []).map((mod, mIndex) => renderAdminModule(mod, mIndex)).join('')}
+                </div>
+                <button onclick="addModule()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-lg flex items-center justify-center"><i data-lucide="file-plus" class="w-5 h-5 mr-2"></i> Añadir Nuevo Módulo</button>
+            `;
+            
+            lucide.createIcons();
+        }
+        
+        // (Las funciones de renderizado y CRUD restantes ya estaban globalizadas o no causaban problemas de alcance)
+        window.renderAdminModule = (mod, mIndex) => {
+            return `
+                <div id="admin-module-${mIndex}" class="p-6 bg-white rounded-xl shadow-lg border-t-4 border-blue-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="text-xl font-extrabold text-blue-800">Módulo ${mIndex + 1}</h4>
+                        <button onclick="removeModule(${mIndex})" class="text-red-600 hover:text-red-800 transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    </div>
+                    
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Título del Módulo:</label>
+                    <input type="text" class="admin-input" value="${mod.title}" oninput="courseData.modules[${mIndex}].title = this.value">
+                    
+                    <!-- Edición de Contenido Clave -->
+                    <h5 class="font-bold mt-4 mb-2 text-gray-700 border-t pt-3">Contenido Clave:</h5>
+                    <div id="admin-content-${mIndex}" class="space-y-4 p-3 border rounded-lg bg-gray-50">
+                        ${(mod.content || []).map((c, cIndex) => renderAdminContentItem(mIndex, cIndex, c)).join('')}
+                    </div>
+                    <button onclick="addContentItem(${mIndex})" class="mt-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-1 px-3 rounded-md transition duration-200 text-sm flex items-center"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Añadir Contenido</button>
+
+                    <!-- Edición de Preguntas -->
+                    <h5 class="font-bold mt-6 mb-2 text-gray-700 border-t pt-3">Preguntas de Comprensión:</h5>
+                    <div id="admin-questions-${mIndex}" class="space-y-4 p-3 border rounded-lg bg-red-50">
+                        ${(mod.questions || []).map((q, qIndex) => renderAdminQuestion(mIndex, qIndex, q)).join('')}
+                    </div>
+                    <button onclick="addQuestion(${mIndex})" class="mt-3 bg-red-400 hover:bg-red-500 text-white font-medium py-1 px-3 rounded-md transition duration-200 text-sm flex items-center"><i data-lucide="help-circle" class="w-4 h-4 mr-1"></i> Añadir Pregunta</button>
+                </div>
+            `;
+        };
+
+        window.renderAdminContentItem = (mIndex, cIndex, item) => {
+             const typeSelect = `
+                <select class="admin-select w-1/3 mr-2" onchange="updateContentType(${mIndex}, ${cIndex}, this.value)">
+                    <option value="heading" ${item.type === 'heading' ? 'selected' : ''}>Encabezado (h4)</option>
+                    <option value="paragraph" ${item.type === 'paragraph' ? 'selected' : ''}>Párrafo</option>
+                    <option value="list" ${item.type === 'list' ? 'selected' : ''}>Lista (Viñetas)</option>
+                </select>
+            `;
+            
+            let contentInput;
+            if (item.type === 'list') {
+                const listItems = Array.isArray(item.items) ? item.items.join('\n') : '';
+                contentInput = `
+                    <textarea placeholder="Cada línea es una viñeta" class="admin-textarea h-20 text-sm" oninput="updateListContent(${mIndex}, ${cIndex}, this.value)">${listItems}</textarea>
+                `;
+            } else {
+                 contentInput = `
+                    <textarea placeholder="Texto del ${item.type === 'heading' ? 'Encabezado' : 'Párrafo'}" class="admin-textarea h-10 text-sm" oninput="courseData.modules[${mIndex}].content[${cIndex}].text = this.value">${item.text || ''}</textarea>
+                `;
+            }
+
+            return `
+                <div class="p-3 border rounded-md bg-white flex items-start space-x-3">
+                    ${typeSelect}
+                    <div class="flex-grow">
+                       ${contentInput}
+                    </div>
+                    <button onclick="removeContentItem(${mIndex}, ${cIndex})" class="text-red-500 hover:text-red-700 p-2 rounded-full bg-red-100 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+            `;
+        };
+        
+        window.updateContentType = (mIndex, cIndex, newType) => {
+            const currentItem = courseData.modules[mIndex].content[cIndex];
+            if (currentItem.type !== newType) {
+                if (newType === 'list') {
+                    courseData.modules[mIndex].content[cIndex] = { type: 'list', items: [currentItem.text || 'Elemento de lista 1'] };
+                } else {
+                    courseData.modules[mIndex].content[cIndex] = { type: newType, text: Array.isArray(currentItem.items) ? currentItem.items.join(' ') : (currentItem.text || 'Nuevo contenido') };
+                }
+            }
+            renderAdminPanel(); // Re-renderizar el panel para actualizar los inputs
+        }
+        
+         window.updateListContent = (mIndex, cIndex, value) => {
+            const items = value.split('\n').filter(item => item.trim() !== '');
+            courseData.modules[mIndex].content[cIndex].items = items;
+        }
+
+        window.renderAdminQuestion = (mIndex, qIndex, question) => {
+            return `
+                <div class="p-4 border rounded-md bg-white space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h6 class="font-semibold text-gray-700">Pregunta ${qIndex + 1}</h6>
+                         <button onclick="removeQuestion(${mIndex}, ${qIndex})" class="text-red-500 hover:text-red-700 transition"><i data-lucide="trash" class="w-4 h-4"></i></button>
+                    </div>
+
+                    <label class="block text-xs font-medium text-gray-500">Texto de la Pregunta:</label>
+                    <textarea class="admin-textarea h-10 text-sm" oninput="courseData.modules[${mIndex}].questions[${qIndex}].text = this.value">${question.text}</textarea>
+
+                    <label class="block text-xs font-medium text-gray-500">Opciones (Marque la Correcta):</label>
+                    <div class="space-y-1">
+                        ${(question.options || []).map((opt, oIndex) => `
+                            <div class="flex items-center space-x-2">
+                                <input type="radio" name="correct-q-${mIndex}-${qIndex}" 
+                                       id="correct-q-${mIndex}-${qIndex}-${oIndex}" 
+                                       ${question.correctIndex === oIndex ? 'checked' : ''}
+                                       onclick="courseData.modules[${mIndex}].questions[${qIndex}].correctIndex = ${oIndex}"
+                                       class="form-radio text-green-600">
+                                <label for="correct-q-${mIndex}-${qIndex}-${oIndex}" class="text-xs font-medium">Opción ${String.fromCharCode(65 + oIndex)}:</label>
+                                <input type="text" class="admin-input flex-1 p-1 text-xs my-0" 
+                                       value="${opt}" 
+                                       oninput="courseData.modules[${mIndex}].questions[${qIndex}].options[${oIndex}] = this.value">
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="addOption(${mIndex}, ${qIndex})" class="mt-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-medium py-1 px-2 rounded-md transition duration-200"><i data-lucide="plus" class="w-3 h-3 mr-1 inline"></i> Añadir Opción</button>
+                </div>
+            `;
+        };
+
+        // --- Funciones CRUD de Módulos (GLOBAL) ---
+        window.addModule = () => {
+            courseData.modules.push({
+                id: (courseData.modules.length || 0) + 1,
+                title: "Nuevo Módulo " + ((courseData.modules.length || 0) + 1) + ": Título Provisional (Semana X)",
+                content: [{ type: "heading", text: "Nuevo Contenido Clave" }, { type: "paragraph", text: "Este es un nuevo párrafo de contenido para el módulo." }],
+                questions: []
+            });
+            renderAdminPanel();
+        };
+
+        window.removeModule = (mIndex) => {
+            if (confirm(`¿Está seguro de eliminar el Módulo ${mIndex + 1}? Esta acción no se puede deshacer.`)) {
+                courseData.modules.splice(mIndex, 1);
+                // Ajustar el índice de navegación si el módulo activo fue eliminado
+                if (currentModuleIndex >= courseData.modules.length && courseData.modules.length > 0) {
+                     currentModuleIndex = courseData.modules.length - 1;
+                } else if (courseData.modules.length === 0) {
+                     currentModuleIndex = 0;
+                }
+                renderAdminPanel();
+            }
+        };
+        
+        // --- Funciones CRUD de Contenido, Preguntas y Referencias (GLOBAL) ---
+        window.addContentItem = (mIndex) => { courseData.modules[mIndex].content.push({ type: "paragraph", text: "Nuevo párrafo añadido." }); renderAdminPanel(); };
+        window.removeContentItem = (mIndex, cIndex) => { courseData.modules[mIndex].content.splice(cIndex, 1); renderAdminPanel(); };
+        window.addQuestion = (mIndex) => { courseData.modules[mIndex].questions.push({ text: "¿Nueva pregunta de comprensión?", options: ["Opción A", "Opción B", "Opción C"], correctIndex: 0 }); renderAdminPanel(); };
+        window.removeQuestion = (mIndex, qIndex) => { courseData.modules[mIndex].questions.splice(qIndex, 1); renderAdminPanel(); };
+        window.addOption = (mIndex, qIndex) => { courseData.modules[mIndex].questions[qIndex].options.push(`Nueva Opción ${String.fromCharCode(65 + (courseData.modules[mIndex].questions[qIndex].options.length || 0))}`); renderAdminPanel(); };
+        window.addReference = () => { if (!courseData.references) courseData.references = []; courseData.references.push({ author: "Autor, A. (Año).", title: "Título del Artículo/Libro.", source: "Fuente o Editorial." }); renderAdminPanel(); };
+        window.removeReference = (rIndex) => { courseData.references.splice(rIndex, 1); renderAdminPanel(); };
+
+
+        // --- Datos Iniciales Por Defecto ---
+        const initialCourseData = {
+            title: "Guía de Éxito al Nuevo Ingreso: Capacitación de Mentores",
+            description: "Este curso en línea tiene una duración de 4 semanas, con una dedicación estimada de 5-7 horas por semana. Es 100% asincrónico para adaptarse a su avance académico superior al 70%.",
+            modules: [
+                {
+                    id: 1,
+                    title: "Módulo 1: Fundamentos del Peer Mentoring y el Rol del Mentor (Semana 1) 🚀",
+                    content: [
+                        { type: "heading", text: "Objetivo:" },
+                        { type: "paragraph", text: "Comprender la filosofía del programa, el compromiso de Servicio Social y establecer los límites éticos y funcionales del rol del Peer Mentor." },
+                        { type: "heading", text: "Contenido Clave Detallado" },
+                        { type: "paragraph", text: "1. *Filosofía del Peer Mentoring CNCI (E-Mentoring):* El modelo se centra en la *relación horizontal* (peer-to-peer) y el *apoyo psicológico-social y académico inicial* para la retención. Su principal logro es que el Mentoreado desarrolle *autonomía* y *autoeficacia* en el entorno virtual." },
+                        { type: "paragraph", text: "2. *Compromiso de Servicio Social y Consistencia:* Se detallan los *6 meses de servicio* y la importancia de la *frecuencia de contacto* (ej. una reunión virtual sincrónica o contacto asincrónico por chat/email por semana). Consistencia es clave." },
+                        { type: "paragraph", text: "3. *Los 4 Roles Clave del Mentor:* Su rol se divide en Guía Académico/Estratégico, Enlace/Facilitador de Recursos, Modelo a Seguir, y Primer Soporte Emocional." },
+                        { type: "paragraph", text: "4. *Ética, Confidencialidad y el Protocolo de Escalada:* La *Regla de las '3 C'* (Confidencialidad, Consistencia y Competencia) es fundamental. El *Protocolo de Escalada* indica los pasos exactos para reportar situaciones de riesgo (ej. crisis emocionales, fraude académico) al Coordinador del programa." },
+                    ],
+                    questions: [
+                        { text: "¿Cuál es el principal objetivo a largo plazo del rol del Mentor en el programa de E-Mentoring CNCI?", options: ["A) Garantizar que el alumno obtenga las mejores calificaciones en sus cursos.", "B) Fomentar la autonomía y la autoeficacia del Mentoreado en el entorno de aprendizaje virtual.", "C) Reemplazar las funciones de los profesores y los asesores académicos.", "D) Ofrecer terapia y consejería profunda a los alumnos de nuevo ingreso."], correctIndex: 1, },
+                        { text: "Según el protocolo ético, ¿cuál de las siguientes situaciones debe ser reportada inmediatamente (escalada)?", options: ["A) Un alumno que no ha subido una tarea a tiempo.", "B) Un alumno que le pide una recomendación de materia.", "C) Un alumno que expresa pensamientos de autolesión o abandono inminente.", "D) Un alumno que se queja del alto costo de la colegiatura."], correctIndex: 2, },
+                        { text: "¿Qué implica la 'Consistencia' como regla del Mentor?", options: ["A) Tener el mismo tono de voz siempre.", "B) Establecer una frecuencia de contacto clara y mantener ese compromiso durante los 6 meses.", "C) Usar siempre el mismo fondo virtual en las videollamadas.", "D) Solo contactar al mentoreado si este lo solicita primero."], correctIndex: 1, },
+                        { text: "El Peer Mentor asume el rol de 'Enlace/Facilitador de Recursos' al:", options: ["A) Resolver personalmente todos los problemas técnicos del mentoreado.", "B) Conectar al alumno con el servicio universitario específico (ej. Mesa de Ayuda) para que reciba atención experta.", "C) Dar su opinión personal sobre la calidad de los recursos.", "D) Ignorar las solicitudes de ayuda y solo hablar de temas académicos."], correctIndex: 1, },
+                        { text: "La modalidad de apoyo en línea entre pares se denomina:", options: ["A) Couching.", "B) E-Mentoring.", "C) Peer-tutoring.", "D) Asesoría profesional."], correctIndex: 1, },
+                    ],
+                },
+                {
+                    id: 2,
+                    title: "Módulo 2: Habilidades Blandas y Referencia Efectiva (Semana 2) 💬",
+                    content: [
+                        { type: "heading", text: "Objetivo:" },
+                        { type: "paragraph", text: "Desarrollar habilidades de comunicación y empatía adaptadas al entorno virtual y aprender a referir a los alumnos a los servicios de apoyo de la CNCI." },
+                        { type: "heading", text: "Contenido Clave Detallado" },
+                        { type: "paragraph", text: "1. *Técnicas de Comunicación:* Uso de preguntas abiertas, la *paráfrasis* ('Si entendí bien, lo que te preocupa es...'), y *Asertividad* para ser directo y respetuoso al establecer límites o dar indicaciones." },
+                        { type: "paragraph", text: "2. *Construcción de Confianza (Rapport) a Distancia:* Se usan estrategias de *presencia social* para compensar la falta de contacto físico, como la puntualidad y el uso de la cámara en videollamadas." },
+                        { type: "paragraph", text: "3. *Motivación y Metas SMART:* El Mentor ayuda a descomponer grandes objetivos en metas *SMART* (Específicas, Medibles, Alcanzables, Relevantes, con Tiempo definido) para dar un sentido de logro inmediato y control." },
+                        { type: "paragraph", text: "4. *Referencia Efectiva: El Puente de 3 Pasos:* Se formaliza el protocolo: *1. Detección* (identificar señal de riesgo), *2. Conversación de Validación* (confirmar que el alumno acepta buscar ayuda), y *3. Conexión/Notificación* (proporcionar el recurso y notificar al Coordinador)." },
+                    ],
+                    questions: [
+                        { text: "La Paráfrasis es una técnica clave de Escucha Activa que implica:", options: ["A) Hablar en voz alta sobre el problema.", "B) Repetir o resumir lo que el Mentoreado dijo con sus propias palabras para confirmar la comprensión.", "C) Evitar dar cualquier respuesta al mentoreado.", "D) Pedirle al mentoreado que escriba todo en mayúsculas."], correctIndex: 1, },
+                        { text: "Cuál de estas opciones ejemplifica mejor una meta SMART:", options: ["A) Ser un buen estudiante algún día.", "B) Entregar todas las tareas de la semana.", "C) Completar las lecturas del Módulo 2 del Curso de Inducción y subir el cuestionario antes del domingo a las 11:59 pm.", "D) Dejar de procrastinar para siempre."], correctIndex: 2, },
+                        { text: "Para establecer Rapport en un entorno virtual, es esencial que el Mentor priorice:", options: ["A) El envío constante de cadenas de memes.", "B) La crítica al modelo educativo anterior de la Universidad.", "C) La puntualidad en las interacciones y la demostración de presencia social.", "D) Evitar cualquier contacto visual en la videollamada."], correctIndex: 2, },
+                        { text: "La última fase del protocolo de Referencia Efectiva ('Conexión/Notificación') requiere que el Mentor:", options: ["A) Se olvide del caso, pues ya lo refirió.", "B) Notifique al Coordinador del programa después de conectar al alumno con el recurso especializado.", "C) Le exija al Mentoreado que lo mantenga informado de su avance en el servicio de ayuda.", "D) Intente resolver el problema especializado por su cuenta."], correctIndex: 1, },
+                        { text: "¿Qué significa la Asertividad en la comunicación Mentor-Mentoreado?", options: ["A) Imponer sus ideas sin escuchar.", "B) Ser agresivo al dar indicaciones.", "C) Expresar sus límites y opiniones de forma clara, directa y respetuosa.", "D) Quedarse callado para no incomodar."], correctIndex: 2, },
+                    ],
+                },
+                {
+                    id: 3,
+                    title: "Módulo 3: Dominio del Curso de Inducción y Recursos Universitarios (Semana 3) 💻",
+                    content: [
+                        { type: "heading", text: "Objetivo:" },
+                        { type: "paragraph", text: "Adquirir un conocimiento experto del Curso de Inducción, la plataforma, y todos los recursos de apoyo disponibles en la CNCI." },
+                        { type: "heading", text: "Contenido Clave Detallado" },
+                        { type: "paragraph", text: "1. *Inmersión Total en el Curso de Inducción:* Es la piedra angular del apoyo. El Mentor debe conocer de memoria la estructura de los módulos y las *preguntas trampa* donde los alumnos suelen atascarse (ej. uso correcto de citación, diferencia entre actividad formativa y de evaluación)." },
+                        { type: "paragraph", text: "2. *El Ecosistema Tecnológico del Mentoreado:* Identificar y explicar el uso del *LMS/Aula Virtual*, el *Portal de Servicios al Estudiante* (trámites) y el *Correo Institucional*. Estos son los tres pilares de la experiencia en línea." },
+                        { type: "paragraph", text: "3. *El Mapa de Referencia CNCI:* Conocer el directorio actualizado y filtrado con los contactos directos para *Mesa de Ayuda Técnica*, *Asesoría Académica*, *Departamento de Trámites y Becas*, y *Orientación Psicopedagógica*." },
+                        { type: "paragraph", text: "4. *Estrategias de Apoyo Académico Específico:* Cómo ayudar a un alumno virtual a organizarse: Uso de agendas digitales, aplicación de la *Técnica Pomodoro* para el estudio en línea, y cómo maximizar el uso de los recursos de la *Biblioteca Digital*." },
+                    ],
+                    questions: [
+                        { text: "La principal causa de dificultad del nuevo ingreso con el Curso de Inducción es generalmente:", options: ["A) La falta de interés en los temas.", "B) La familiarización y el correcto uso de la Plataforma LMS, las herramientas de evaluación y el modelo de aprendizaje virtual.", "C) El alto nivel de la información teórica.", "D) La duración excesiva de los videos."], correctIndex: 1, },
+                        { text: "Si un Mentoreado requiere solicitar una constancia de estudios, el Mentor debe referirlo al:", options: ["A) La Biblioteca Digital de la CNCI.", "B) El departamento de Orientación Psicopedagógica.", "C) El Portal de Servicios al Estudiante o el Departamento de Trámites y Becas.", "D) El profesor de su primera materia."], correctIndex: 2, },
+                        { text: "Cuál de estas técnicas se recomienda especialmente para ayudar a un Mentoreado a gestionar su tiempo de estudio en línea:", options: ["A) Dejar todas las tareas para el último día.", "B) Trabajar 10 horas seguidas sin descanso.", "C) Implementar la Técnica Pomodoro (ej. 25 minutos de estudio concentrado seguidos de 5 minutos de descanso).", "D) Estudiar sin un horario fijo."], correctIndex: 2, },
+                        { text: "El Mentor debe conocer la diferencia entre una actividad formativa y una actividad de evaluación porque:", options: ["A) Ambas tienen el mismo peso en la calificación final.", "B) La actividad de evaluación impacta directamente la calificación y requiere una atención especial a las rúbricas y el tiempo límite.", "C) La actividad formativa no es necesaria.", "D) Solo los profesores saben la diferencia."], correctIndex: 1, },
+                        { text: "Ante un problema para acceder a la Plataforma LMS con su contraseña, el Mentoreado debe contactar inmediatamente a:", options: ["A) El Rector de la Universidad.", "B) La Mesa de Ayuda Técnica o Soporte de TI de la CNCI.", "C) Un compañero de clase.", "D) El departamento de becas."], correctIndex: 1, },
+                    ],
+                },
+                {
+                    id: 4,
+                    title: "Módulo 4: Gestión, Reporte y Plan de Acción (Semana 4) 📅",
+                    content: [
+                        { type: "heading", text: "Objetivo:" },
+                        { type: "paragraph", text: "Asegurar el entendimiento del proceso administrativo del Servicio Social y la elaboración de un plan de trabajo estructurado para el período de 6 meses." },
+                        { type: "heading", text: "Contenido Clave Detallado" },
+                        { type: "paragraph", text: "1. *Llenado Correcto del Reporte del Mentor (Bitácora de Servicio):* Es la evidencia de la labor de Servicio Social. Debe incluir la *descripción clara de la actividad*, la *duración (horas)* y el *objetivo de la sesión de mentoría*." },
+                        { type: "paragraph", text: "2. *Plan de Actividades a 6 Meses y Prohibiciones:* Se divide en *Fase de Inicio* (Inducción y LMS), *Fase de Mantenimiento* (Estrategias Académicas), y *Fase de Cierre* (Evaluación). Prohibición clave: *Nunca* manejar claves de acceso ni hacer tareas." },
+                        { type: "paragraph", text: "3. *Elaboración del Plan de Contacto y Contingencia:* Taller práctico para definir herramientas de comunicación y un *plan de contingencia* ante la falta de respuesta del Mentoreado (pasos a seguir tras dos contactos sin respuesta)." },
+                    ],
+                    questions: [
+                        { text: "La Bitácora de Servicio debe incluir obligatoriamente:", options: ["A) La calificación de todas las materias del Mentoreado.", "B) Chismes sobre el campus.", "C) La descripción de la actividad realizada, la duración y el objetivo de la sesión de mentoría.", "D) Una lista de sus comidas favoritas."], correctIndex: 2, },
+                        { text: "Si un Mentoreado no responde a dos intentos de contacto, ¿cuál es el paso a seguir del Mentor?", options: ["A) Abandonar el caso y reportarlo como 'deserción'.", "B) Intentar contactar a la familia del Mentoreado.", "C) Aplicar el Plan de Contingencia e informar al Coordinador del programa.", "D) Esperar indefinidamente a que el Mentoreado responda."], correctIndex: 2, },
+                        { text: "La actividad prioritaria del Mentor durante la Fase de Inicio (primer mes) debe centrarse en:", options: ["A) Ayudar al alumno a elegir su tema de tesis.", "B) La revisión de materias avanzadas.", "C) El apoyo al Curso de Inducción, la orientación en el LMS y la gestión del tiempo para el estudio virtual.", "D) La búsqueda de un trabajo a tiempo parcial."], correctIndex: 2, },
+                        { text: "Cuál de las siguientes acciones está terminantemente prohibida para el Peer Mentor?", options: ["A) Sugerir una técnica de gestión del tiempo.", "B) Revisar el contenido del Curso de Inducción.", "C) Manejar las contraseñas del Mentoreado o realizar tareas en su nombre.", "D) Referir al Mentoreado a la biblioteca virtual."], correctIndex: 2, },
+                        { text: "Para asegurar la validación de sus horas de Servicio Social, el Mentor debe:", options: ["A) Declarar las horas sin ninguna documentación.", "B) Realizar el registro detallado y la entrega puntual de la Bitácora de Servicio.", "C) Pedir a un amigo que firme las horas.", "D) Solo registrar las horas de estudio individual."], correctIndex: 1, },
+                    ],
+                },
+            ],
+            references: [
+                { author: "Alleman, N. F., & Clarke, C. B. (2018).", title: "Developing and sustaining peer coaching and mentoring programs.", source: "Routledge." },
+                { author: "Crisp, G. (2017).", title: "Peer mentoring in higher education: a systematic review.", source: "Higher Education Research & Development, 36(6), 1247-1264." },
+                { author: "Jacobi, M. (1991).", title: "Mentoring programs in higher education: A review of the literature.", source: "Review of Educational Research, 61(4), 461-471." },
+                { author: "Terrion, J. L., & Leonard, D. (2007).", title: "A taxonomy of the characteristics of student peer mentors.", source: "Mentoring & Tutoring: Partnership in Learning, 15(4), 424-439." },
+                { author: "University of New Mexico (UNM).", title: "Mentor Training Manuals (Adaptado a e-Mentoring).", source: "Guía Operativa Institucional." },
+            ]
+        };
+
+        // Iniciar la aplicación al cargar la ventana
+        window.onload = initFirebaseAndLoadContent;
+    </script>
+</body>
+</html>
