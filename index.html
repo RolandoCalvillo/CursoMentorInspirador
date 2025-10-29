@@ -3,877 +3,1158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNCI Mentor | Guía de Éxito al Nuevo Ingreso</title>
+    <title>Capacitación Mentor Inspirador - CNCI</title>
     <!-- Carga de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Carga de Fuente (Inter es profesional y legible) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Carga de Iconos de Lucide (para botones y UI) -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-        /* Estilos generales y tipografía */
+        /* Estilos personalizados para el curso */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa; /* Fondo muy claro */
-            transition: background-color 0.3s;
+            background-color: #f7f9fc; /* CNCI light blue background */
         }
-        /* Color principal de la universidad (Azul Profundo/Indigo) */
-        .cnci-primary { background-color: #3b82f6; } /* Tailwind blue-500 */
-        .cnci-text-primary { color: #3b82f6; }
-        .cnci-border-primary { border-color: #3b82f6; }
-
-        /* Estilos para las pestañas de navegación */
-        .module-tab-item {
-            transition: all 0.3s ease;
+        .sidebar {
+            background-color: #004a99; /* CNCI Blue */
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+            z-index: 50;
+            min-height: 100vh; /* Asegura que la barra lateral se extienda */
+        }
+        .content-area {
+            background-color: #ffffff;
+            min-height: 90vh;
+            border-radius: 1.5rem; /* Rounded corners for the main content */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+        .module-link {
+            transition: background-color 0.2s, transform 0.1s;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-radius: 0.5rem;
+            color: white;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
         }
-        .module-tab-item:hover {
-            color: #2563eb; /* blue-600 */
+        .module-link:hover:not(.active) {
+            background-color: #003a7a; /* Darker blue on hover */
+            transform: scale(1.02);
         }
-        .module-tab-item.active {
-            font-weight: 700;
-            color: #3b82f6; /* blue-500 */
-            border-color: #3b82f6;
+        .module-link.active {
+            background-color: #fca311; /* CNCI Orange for active state */
+            font-weight: bold;
+            color: #004a99; /* Blue text for active */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        
-        .question-option {
-            transition: all 0.2s ease-in-out;
+        .quiz-option {
+            transition: background-color 0.2s, transform 0.1s;
             cursor: pointer;
         }
-        .question-option:hover:not(.disabled) {
-            background-color: #eff6ff; /* blue-50 on hover */
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
-        /* Estilos para el panel de administración */
-        .admin-input, .admin-textarea, .admin-select {
-            border-radius: 0.5rem;
-            border: 1px solid #d1d5db;
-            padding: 0.5rem 0.75rem;
-            width: 100%;
-            margin-bottom: 0.75rem;
+        .correct-answer {
+            background-color: #d1fae5; /* Green light */
+            border: 2px solid #34d399; /* Green border */
         }
-        /* Clases para ocultar/mostrar elementos */
-        .hidden-item { display: none; }
-
-        /* Estilo para Embeds (Videos/Imágenes) para asegurar responsividad */
-        .responsive-embed {
-            overflow: hidden;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            position: relative;
-            height: 0;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 0.5rem;
+        .incorrect-answer {
+            background-color: #fee2e2; /* Red light */
+            border: 2px solid #f87171; /* Red border */
         }
-        .responsive-embed iframe,
-        .responsive-embed video {
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%;
-            position: absolute;
+        /* Animación para el botón de Quiz */
+        .quiz-button-animate {
+            animation: pulse-shadow 1.5s infinite;
         }
-        .responsive-embed img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-            display: block;
-            margin: auto;
+        @keyframes pulse-shadow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(252, 163, 17, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(252, 163, 17, 0); }
+        }
+        /* Estilo para el botón de menú en móviles */
+        @media (max-width: 767px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 70%;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .menu-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 40;
+                display: none;
+            }
+            .menu-backdrop.open {
+                display: block;
+            }
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen">
 
-    <!-- Contenedor Principal del Curso -->
-    <div id="app-container" class="min-h-screen pb-20">
-        <!-- Encabezado Fijo -->
-        <header class="cnci-primary text-white shadow-lg sticky top-0 z-10">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                <h1 id="course-title-header" class="text-2xl font-extrabold tracking-tight">Cargando Título...</h1>
-                <div id="auth-status" class="text-sm font-medium opacity-80">
-                    <!-- Estado de autenticación de Firebase -->
-                </div>
-            </div>
-        </header>
+    <!-- Menu Backdrop for Mobile -->
+    <div id="menuBackdrop" class="menu-backdrop" onclick="toggleSidebar()"></div>
 
-        <!-- Contenido del Curso (Sección para Mentores) -->
-        <main id="course-content-view" class="max-w-7xl mx-auto px-4 mt-8">
-            <!-- Título y Descripción -->
-            <section class="text-center mb-10">
-                <h2 id="course-main-title" class="text-4xl font-black cnci-text-primary mb-2"></h2>
-                <p id="course-description" class="text-gray-600 text-lg"></p>
-                <div id="loading-spinner" class="mt-8 text-center text-gray-500">
-                    <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-500 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Cargando curso...
-                </div>
-            </section>
-            
-            <!-- Navegación de Módulos (Tabs) -->
-            <div id="module-tabs" class="border-b border-gray-200 mb-8 overflow-x-auto whitespace-nowrap">
-                <!-- Las pestañas se renderizarán aquí -->
+    <div class="flex">
+        <!-- Sidebar / Menú de Módulos -->
+        <aside id="sidebar" class="sidebar w-64 md:block fixed md:relative transform -translate-x-full md:translate-x-0 h-screen p-6 overflow-y-auto">
+            <div class="text-center mb-6">
+                <!-- LOGO CNCI -->
+                <img src="https://i.postimg.cc/KzxV7m0Z/CNCI-VIRTUAL-LOGO.jpg" alt="Logo CNCI Virtual" class="w-24 h-auto mx-auto mb-4 rounded-lg shadow-lg">
+                <h1 class="text-3xl font-extrabold text-white leading-tight">
+                    <span class="text-yellow-400">Mentor</span> Inspirador ✨
+                </h1>
+                <p class="text-sm text-gray-300">CNCI Virtual</p>
             </div>
 
-            <!-- Contenido del Módulo Activo -->
-            <div id="modules-container" class="max-w-4xl mx-auto space-y-10">
-                <!-- El contenido del módulo activo se renderizará aquí -->
-            </div>
+            <!-- Botón de cerrar para móvil -->
+            <button id="closeMenuBtn" onclick="toggleSidebar()" class="md:hidden absolute top-4 right-4 text-white text-2xl">
+                &times;
+            </button>
+
+            <!-- Lista de Módulos -->
+            <nav id="moduleMenu">
+                <!-- Los enlaces de módulos se cargarán aquí -->
+            </nav>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="flex-1 p-4 md:p-8">
+            <!-- Botón de menú para móvil -->
+            <button onclick="toggleSidebar()" class="md:hidden p-3 bg-white rounded-full shadow-lg mb-4 text-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
             
-            <!-- Botones de Navegación (Anterior/Siguiente) -->
-            <div id="module-nav-buttons" class="max-w-4xl mx-auto flex justify-between mt-10">
-                <button id="prev-module-btn" 
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition duration-200 disabled:opacity-50 flex items-center">
-                    <i data-lucide="chevron-left" class="w-5 h-5 mr-1"></i> Anterior
-                </button>
-                <button id="next-module-btn" 
-                        class="px-4 py-2 cnci-primary text-white rounded-lg hover:bg-blue-600 transition duration-200 disabled:opacity-50 flex items-center">
-                    Siguiente Módulo <i data-lucide="chevron-right" class="w-5 h-5 ml-1"></i>
-                </button>
+            <div id="contentArea" class="content-area">
+                <!-- El contenido del módulo o quiz se cargará aquí -->
             </div>
-            
-            <!-- Referencias Bibliográficas (Aparece al final del último módulo) -->
-            <section id="references-section" class="pt-8 border-t border-gray-200 mt-12 max-w-4xl mx-auto hidden-item">
-                <h3 class="text-2xl font-bold cnci-text-primary mb-6">📚 Referencias Bibliográficas Confiables</h3>
-                <ul id="references-list" class="space-y-3 text-gray-700 list-inside">
-                    <!-- Las referencias se renderizarán aquí -->
-                </ul>
-            </section>
         </main>
-        
-        <!-- Panel de Administración (Inicialmente oculto) -->
-        <div id="admin-panel" class="fixed inset-0 bg-white z-50 overflow-y-auto p-8 hidden-item">
-            <div class="max-w-4xl mx-auto">
-                <div class="flex justify-between items-center pb-4 border-b mb-6">
-                    <h2 class="text-3xl font-extrabold text-red-600">🛠️ Panel de Administración del Curso</h2>
-                    <!-- El onclick de closeAdminPanel sigue siendo válido ya que está global -->
-                    <button onclick="closeAdminPanel()" class="text-gray-500 hover:text-gray-900 transition">
-                        <i data-lucide="x" class="h-6 w-6"></i>
-                    </button>
-                </div>
-                <div id="admin-content-editor" class="space-y-8">
-                    <!-- Contenido editable del curso -->
-                </div>
-                <div class="mt-8 pt-6 border-t">
-                    <!-- El onclick de saveCourseData sigue siendo válido ya que está global -->
-                    <button onclick="saveCourseData()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200 shadow-md">
-                        Guardar Todos los Cambios del Curso
-                    </button>
-                    <p id="admin-message" class="mt-3 text-center text-sm text-gray-500"></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Botón de Acceso al Panel de Administración (Discreto) -->
-        <button id="admin-access-btn" 
-                class="fixed bottom-4 right-4 bg-gray-300 text-gray-800 p-2 rounded-full shadow-lg hover:bg-gray-400 transition duration-300 font-bold text-xs w-8 h-8 flex items-center justify-center opacity-75 hover:opacity-100 z-40">
-            A
-        </button>
     </div>
 
-    <!-- Carga y Configuración de Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Botón de Acceso Admin (Ahora en la esquina inferior izquierda y más chico) -->
+    <button onclick="promptAdminAccess()" class="fixed bottom-4 left-4 p-2 bg-gray-800 text-white rounded-full shadow-xl opacity-80 hover:opacity-100 transition duration-300 z-50 text-sm">
+        Admin ⚙️
+    </button>
 
-        // Variables Globales Proporcionadas por el Entorno
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cnci-mentor-app';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { projectId: "demo-project" };
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db;
-        let auth;
-        let courseData = {};
-        let userId = null;
-        let currentModuleIndex = 0; 
-        const ADMIN_PASSWORD = "admin123";
-        const COURSE_DOCUMENT_PATH = `/artifacts/${appId}/public/data/mentor_course/course_data`;
-
-        // ***************************************
-        // ********* PANEL DE ADMINISTRACIÓN (GLOBALIZADO) *********
-        // ***************************************
-
-        // --- Acceso al Panel de Administración (Hecho GLOBAL para asegurar alcance) ---
-        window.promptAdminPassword = () => {
-            const password = window.prompt("Ingrese la contraseña de administrador:");
-            if (password === ADMIN_PASSWORD) {
-                window.openAdminPanel();
-            } else if (password !== null) {
-                // Usamos un modal simulado en lugar de alert
-                const appContainer = document.getElementById('app-container');
-                const modal = document.createElement('div');
-                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                modal.innerHTML = `
-                    <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full text-center">
-                        <h3 class="text-xl font-bold text-red-600 mb-4">Acceso Denegado 🔒</h3>
-                        <p class="text-gray-700 mb-6">Contraseña incorrecta. Por favor, inténtelo de nuevo.</p>
-                        <button onclick="this.parentNode.parentNode.remove()" class="cnci-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">Entendido</button>
+    <script>
+        // --- DATA DEL CURSO (Inicial/Fallback) ---
+        const initialCourseData = [
+            {
+                id: 1,
+                title: "Módulo 1: El Origen de la Mentoría y Modalidades de Participación 💡",
+                content: `
+                    <h2 class="text-3xl font-bold text-blue-800 mb-6">Módulo 1: El Origen de la Mentoría y Modalidades de Participación</h2>
+                    <p class="text-lg text-gray-700 mb-8">¡Bienvenido! Tu rol como <span class="font-semibold text-orange-500">Mentor Inspirador</span> es fundamental. Eres un puente estratégico para el alumno de nuevo ingreso.</p>
+                    
+                    <!-- Tema 1.1 -->
+                    <div class="mb-8 p-4 bg-blue-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">1.1: Contexto Histórico y Visión CNCI 4.0</h3>
+                        <p class="mb-3">El concepto proviene de <span class="font-medium text-orange-600">Mentor</span> en la Odisea, quien aconsejó a Telémaco. Tu función es ser un guía con experiencia, brindando <span class="font-bold">apoyo emocional y estratégico</span>.</p>
+                        <p class="mb-3">La Visión CNCI busca formar profesionales <span class="font-bold">adaptables</span>. Tu apoyo asegura que los nuevos alumnos adopten y dominen rápidamente las herramientas digitales.</p>
+                        <h4 class="font-bold mt-4 text-blue-600">Tipos de Mentoría Aplicados:</h4>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600">
+                            <li><span class="font-semibold">E-Mentoring:</span> Apoyo 100% digital a través de canales oficiales (WhatsApp, Correo). Clave: <span class="font-medium">disponibilidad asertiva.</span></li>
+                            <li><span class="font-semibold">Mentoría entre Pares (Peer-Mentoring):</span> Compartir tu experiencia como compañero universitario, ofreciendo una perspectiva fresca y aplicable.</li>
+                        </ul>
                     </div>
-                `;
-                appContainer.appendChild(modal);
-            }
-        };
 
-        // --- Apertura del Panel (Hecha GLOBAL para asegurar alcance) ---
-        window.openAdminPanel = () => {
-            document.getElementById('admin-panel').classList.remove('hidden-item');
-            document.getElementById('admin-panel').classList.add('active'); // Marca como activo
-            document.getElementById('course-content-view').classList.add('hidden-item');
-            document.getElementById('admin-access-btn').classList.add('hidden-item');
-            renderAdminPanel();
-        }
+                    <!-- Tema 1.2 -->
+                    <div class="mb-8 p-4 bg-orange-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-orange-700 mb-3">1.2: Modalidades de Participación y Compromisos</h3>
+                        <p class="mb-4">Existen dos rutas, cada una con compromisos y beneficios distintos:</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg shadow-md">
+                                <thead class="bg-blue-100">
+                                    <tr>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Modalidad</th>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Duración del Apoyo</th>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Beneficios / Retribución</th>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Compromiso Clave</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-3 px-4 border-b font-semibold text-blue-800">Servicio Social (SS)</td>
+                                        <td class="py-3 px-4 border-b">6 meses (4 meses de mentoría activa: 2do al 5to módulo).</td>
+                                        <td class="py-3 px-4 border-b">Obtención de las horas requeridas. <span class="text-red-500 font-medium">No hay beneficios adicionales (Bonos).</span></td>
+                                        <td class="py-3 px-4 border-b">Rigurosa entrega de reportes (más del 50%) o se extiende el tiempo.</td>
+                                    </tr>
+                                    <tr class="bg-yellow-50">
+                                        <td class="py-3 px-4 border-b font-semibold text-orange-700">Beneficios (Bono)</td>
+                                        <td class="py-3 px-4 border-b">4 meses de apoyo total (Alta intensidad).</td>
+                                        <td class="py-3 px-4 border-b">Bono Base ($1200 MXN) o $2000 MXN por excelencia + Constancia y Kit.</td>
+                                        <td class="py-3 px-4 border-b">Alto cumplimiento de actividades para recibir el Bono. Vigencia del bono: 6 meses.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-        window.closeAdminPanel = () => {
-            document.getElementById('admin-panel').classList.add('hidden-item');
-            document.getElementById('admin-panel').classList.remove('active');
-            document.getElementById('course-content-view').classList.remove('hidden-item');
-            document.getElementById('admin-access-btn').classList.remove('hidden-item');
-            navigateToModule(currentModuleIndex, true); // Asegurar que la vista de mentor se refresque
-        };
+                    <!-- Tema 1.3 -->
+                    <div class="mb-8 p-4 bg-gray-100 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3">1.3: Carta Compromiso</h3>
+                        <p class="mb-3">Deberás firmar la carta compromiso correspondiente según tu modalidad:</p>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600">
+                            <li>Carta Compromiso por Servicio Social</li>
+                            <li>Carta Compromiso por Beneficios (bonos)</li>
+                        </ul>
+                    </div>
 
-        // --- Guardar Datos en Firestore (Ya era global, adaptado para modo demo) ---
-        window.saveCourseData = async () => {
-            const adminMessageEl = document.getElementById('admin-message');
-            adminMessageEl.classList.remove('text-green-600', 'text-red-500');
+                    <!-- Placeholder de Imagen -->
+                    <div class="mt-8 p-4 bg-gray-200 text-center rounded-lg border-2 border-dashed border-gray-400">
+                        <p class="text-gray-600 font-semibold">📍 Placeholder para Imagen de Apoyo</p>
+                        <p class="text-sm text-gray-500">Aquí irá tu imagen de apoyo del Módulo 1 (Ej. un ícono de Mentor o las dos rutas de participación).</p>
+                        <button onclick="downloadPlaceholder(1)" class="mt-2 text-blue-600 hover:text-blue-800 text-xs font-medium">
+                            (Descargar Placeholder)
+                        </button>
+                    </div>
 
-            if (!db) {
-                adminMessageEl.textContent = '⚠️ Advertencia: No se pudo guardar. La base de datos está en Modo Demo.';
-                adminMessageEl.classList.add('text-red-500');
-                return;
-            }
-
-            try {
-                const docRef = doc(db, COURSE_DOCUMENT_PATH);
-                await setDoc(docRef, courseData);
-                adminMessageEl.textContent = '✅ ¡Curso guardado exitosamente en la base de datos!';
-                adminMessageEl.classList.add('text-green-600');
-                
-                setTimeout(() => {
-                    adminMessageEl.textContent = '';
-                }, 3000);
-                
-            } catch (error) {
-                console.error("Error al guardar los datos del curso:", error);
-                adminMessageEl.textContent = `❌ Error al guardar: ${error.message}`;
-                adminMessageEl.classList.add('text-red-500');
-            }
-        };
-        
-        // ***************************************
-        // ********* INICIALIZACIÓN DE LA APP *********
-        // ***************************************
-
-        // --- Inicialización y Autenticación de Firebase (Con manejo de error robusto) ---
-        async function initFirebaseAndLoadContent() {
-            let firebaseInitialized = false;
-
-            // 1. Intentar inicializar y autenticar con Firebase (Puede fallar por invalid-api-key)
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                // Intentar autenticación
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                // Autenticación exitosa, configurar el listener de datos
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        document.getElementById('auth-status').textContent = `Conectado (ID: ${userId.substring(0, 8)}...)`;
-                        loadCourseData(); // Cargar datos en tiempo real
+                    <div class="flex justify-end mt-10">
+                        <button onclick="startQuiz(1)" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-full hover:bg-orange-600 transition duration-300 quiz-button-animate">
+                            ¡Iniciar Quiz del Módulo 1! 🚀
+                        </button>
+                    </div>
+                `,
+                quiz: [
+                    {
+                        question: "¿Cuál es el origen mitológico del término 'Mentor' y qué implica para tu rol en CNCI?",
+                        options: [
+                            "Proviene de Zeus, un dios griego; tu rol es de autoridad académica.",
+                            "Proviene de la Odisea, Mentor aconsejó a Telémaco; tu rol es de guía y apoyo emocional/estratégico.",
+                            "Proviene de un filósofo romano; tu rol es de resolución de trámites.",
+                            "Proviene de un personaje de la Mitología Nórdica; tu rol es de compartir respuestas de tareas."
+                        ],
+                        correct: 1,
+                        explanation: "El término proviene de la Odisea, donde Mentor era un guía. En CNCI, esto implica ser un guía con experiencia y brindar apoyo emocional y estratégico, no solo académico."
+                    },
+                    {
+                        question: "Si participas bajo la modalidad de Servicio Social (SS), ¿durante cuántos meses tendrás compañeros mentoreados asignados activamente?",
+                        options: [
+                            "6 meses de participación total con mentoría activa.",
+                            "Solo el primer mes de inducción.",
+                            "4 meses (del 2do al 5to módulo) de mentoría activa, dentro de un periodo total de 6 meses.",
+                            "El tiempo es indefinido hasta que el alumno egrese."
+                        ],
+                        correct: 2,
+                        explanation: "En Servicio Social, el apoyo directo a compañeros es solo durante 4 meses (del 2do al 5to módulo), aunque la participación total sea de 6 meses."
+                    },
+                    {
+                        question: "¿Qué tipo de mentoría se enfoca en el apoyo 100% digital a través de canales oficiales con 'disponibilidad asertiva'?",
+                        options: [
+                            "Mentoría entre Pares (Peer-Mentoring).",
+                            "Mentoría Presencial (Face-to-Face).",
+                            "E-Mentoring.",
+                            "Mentoría CNCI 4.0."
+                        ],
+                        correct: 2,
+                        explanation: "El E-Mentoring es el apoyo 100% digital que se realiza a través de canales oficiales como WhatsApp y Correo, requiriendo una disponibilidad asertiva."
                     }
-                });
-                firebaseInitialized = true;
+                ]
+            },
+            {
+                id: 2,
+                title: "Módulo 2: Perfil del Mentor: Roles Diferenciados y Límites de Apoyo 🛡️",
+                content: `
+                    <h2 class="text-3xl font-bold text-blue-800 mb-6">Módulo 2: Perfil del Mentor: Roles Diferenciados y Límites de Apoyo</h2>
+                    <p class="text-lg text-gray-700 mb-8">La naturaleza de tu apoyo está definida por la etapa de adaptación que vive el alumno.</p>
+                    
+                    <!-- Tema 2.1 -->
+                    <div class="mb-8 p-4 bg-blue-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">2.1: La Diferencia Clave en tus Alumnos Asignados</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg shadow-md">
+                                <thead class="bg-blue-100">
+                                    <tr>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Tipo de Mentor</th>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Grupo de Apoyo</th>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Prioridad de Apoyo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="bg-yellow-50">
+                                        <td class="py-3 px-4 border-b font-semibold text-orange-700">Mentor A</td>
+                                        <td class="py-3 px-4 border-b">1er Cuatrimestre</td>
+                                        <td class="py-3 px-4 border-b">Organización del tiempo (2 materias), Metodología de Estudio (Materias Unificadas), <span class="font-bold">motivación sostenida</span>, Metas SMART.</td>
+                                    </tr>
+                                    <tr class="bg-green-50">
+                                        <td class="py-3 px-4 border-b font-semibold text-green-700">Mentor B</td>
+                                        <td class="py-3 px-4 border-b">Inducción (máx. 14 días)</td>
+                                        <td class="py-3 px-4 border-b">Disponibilidad de horarios, tips para <span class="font-bold text-red-600">acreditar el curso de Inducción</span>, dudas de herramientas.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-            } catch (error) {
-                // El error de invalid-api-key o cualquier otro error de inicialización cae aquí
-                console.error("Error FATAL de Firebase (API Key/Autenticación). Carga de datos de respaldo activada. ", error);
-                
-                // 2. Fallback: Cargar datos iniciales estáticos (Modo Demo)
-                courseData = JSON.parse(JSON.stringify(initialCourseData)); // Clonar para que los cambios en admin no afecten el original
-                document.getElementById('loading-spinner').classList.add('hidden-item');
-                document.getElementById('auth-status').textContent = '⚠️ Modo Demo (Sin Base de Datos)';
-                
-                // Marcar db/auth como nulo para que saveCourseData sepa que no puede guardar
-                db = null;
-                auth = null;
-            }
-            
-            // 3. Configurar Listeners y Renderizado Inicial (Esto siempre debe ejecutarse)
-            
-            // Adjuntar listener del botón de Admin (corregido)
-            document.getElementById('admin-access-btn').addEventListener('click', window.promptAdminPassword);
+                    <!-- Tema 2.2 -->
+                    <div class="mb-8 p-4 bg-orange-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-orange-700 mb-3">2.2: Cualidades de un Mentor de Excelencia ⭐</h3>
+                        <p class="mb-4">Tus habilidades blandas son tu principal herramienta para generar confianza:</p>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-2">
+                            <li><span class="font-semibold text-purple-600">Rapport:</span> Establecer una conexión de confianza mutua, mostrando tu propia experiencia.</li>
+                            <li><span class="font-semibold text-purple-600">Escucha Activa:</span> Comprender las causas profundas, ir más allá de la duda técnica.</li>
+                            <li><span class="font-semibold text-purple-600">Motivación:</span> Mantener el ánimo del alumno, especialmente después de una calificación baja.</li>
+                            <li><span class="font-semibold text-purple-600">Empatía:</span> Reconocer los retos de autodisciplina y las situaciones personales/laborales diferentes.</li>
+                            <li><span class="font-semibold text-purple-600">Asertividad:</span> Comunicar límites y dirigir al recurso correcto sin pasividad (hacerlo por él) ni agresividad.</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Tema 2.3 -->
+                    <div class="mb-8 p-4 bg-red-50 rounded-xl border border-red-300">
+                        <h3 class="text-2xl font-semibold text-red-700 mb-3">2.3: Límites del Apoyo y Canalización Obligatoria 🚨</h3>
+                        <p class="mb-3 font-bold">Tu rol es de <span class="text-red-600">acompañamiento experiencial</span> y guía a recursos, NO de resolución administrativa o académica formal.</p>
+                        <h4 class="font-bold mt-4 text-red-600">Límite Clave:</h4>
+                        <p class="ml-4 text-gray-600">🚫 <span class="font-semibold">NUNCA</span> resolver trámites, dar respuestas de tareas, interferir en la elaboración de trabajos, ni compartir contactos privados de personal administrativo.</p>
+                        <h4 class="font-bold mt-4 text-red-600">Canalización Obligatoria a tu Mentor Universitario:</h4>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-1">
+                            <li>Compañeros que <span class="font-bold">no brinden respuesta</span> (riesgo de abandono).</li>
+                            <li>Mencionen su <span class="font-bold">posible baja</span> o expresen sentirse abrumados al punto de querer renunciar.</li>
+                            <li>Reporten dificultades académicas o administrativas <span class="font-bold">complejas</span> (Ej. "No me cargan mis calificaciones", "Mi plataforma no funciona correctamente").</li>
+                        </ul>
+                    </div>
 
-            // Adjuntar event listeners para botones de navegación
-            document.getElementById('prev-module-btn').addEventListener('click', () => {
-                navigateToModule(currentModuleIndex - 1);
-            });
+                    <!-- Placeholder de Imagen -->
+                    <div class="mt-8 p-4 bg-gray-200 text-center rounded-lg border-2 border-dashed border-gray-400">
+                        <p class="text-gray-600 font-semibold">📍 Placeholder para Imagen de Apoyo</p>
+                        <p class="text-sm text-gray-500">Aquí irá tu imagen de apoyo del Módulo 2 (Ej. Diagrama de roles, escudo de límites).</p>
+                        <button onclick="downloadPlaceholder(2)" class="mt-2 text-blue-600 hover:text-blue-800 text-xs font-medium">
+                            (Descargar Placeholder)
+                        </button>
+                    </div>
 
-            document.getElementById('next-module-btn').addEventListener('click', () => {
-                navigateToModule(currentModuleIndex + 1);
-            });
-            
-            // Event delegation para las pestañas de módulos
-            document.getElementById('module-tabs').addEventListener('click', (event) => {
-                const target = event.target.closest('.module-tab-item');
-                if (target) {
-                    const index = parseInt(target.getAttribute('data-index'));
-                    if (!isNaN(index)) {
-                        navigateToModule(index);
+                    <div class="flex justify-end mt-10">
+                        <button onclick="startQuiz(2)" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-full hover:bg-orange-600 transition duration-300 quiz-button-animate">
+                            ¡Iniciar Quiz del Módulo 2! 🚀
+                        </button>
+                    </div>
+                `,
+                quiz: [
+                    {
+                        question: "Si eres un Mentor A (1er Cuatrimestre), ¿cuál es el reto académico específico que debe priorizar tu apoyo?",
+                        options: [
+                            "La organización del tiempo para sus dos materias unificadas.",
+                            "El apoyo en la elaboración del Proyecto Integrador del 3er Cuatrimestre.",
+                            "La disponibilidad de horarios y tips para lograr la <span class='font-bold'>acreditación del curso de Inducción</span> (Calificación ≥ 7.0).",
+                            "La identificación y cumplimiento de Metas SMART durante su primer año."
+                        ],
+                        correct: 0,
+                        explanation: "La prioridad del Mentor A (1er Cuatrimestre) es ayudar al alumno con la organización de sus dos materias unificadas y la metodología de estudio en su primer contacto con la carga académica real."
+                    },
+                    {
+                        question: "¿Qué cualidad de un Mentor de Excelencia se define como la acción de <span class='font-medium'>comunicar límites y dirigir al alumno al recurso correcto sin caer en la pasividad ni en la agresividad</span>?",
+                        options: [
+                            "Empatía.",
+                            "Escucha Activa.",
+                            "Motivación.",
+                            "Asertividad."
+                        ],
+                        correct: 3,
+                        explanation: "La Asertividad es clave para comunicar límites de manera clara y profesional, evitando hacer el trabajo por el alumno (pasividad) o reaccionar negativamente (agresividad)."
+                    },
+                    {
+                        question: "Menciona dos situaciones específicas en las que es obligatorio reportar a un compañero a tu Mentor Universitario (Canalización).",
+                        options: [
+                            "Cuando el alumno pide ayuda para entender un concepto de su tarea o no sabe usar la Biblioteca Virtual.",
+                            "Cuando el alumno pregunta por los horarios de Servicios Estudiantiles o el correo institucional.",
+                            "Cuando el alumno no brinde respuesta a pesar de varios intentos o mencione su posible baja de la Universidad.",
+                            "Cuando el alumno te pide que le resuelvas un trámite de cambio de matrícula."
+                        ],
+                        correct: 2,
+                        explanation: "Es obligatorio reportar los casos de riesgo de abandono (sin respuesta) o la intención de darse de baja, ya que requieren la intervención del área administrativa/orientación."
                     }
-                }
-            });
+                ]
+            },
+            {
+                id: 3,
+                title: "Módulo 3: La Universidad en Acción: Estructura, Metodologías y Herramientas 🎓",
+                content: `
+                    <h2 class="text-3xl font-bold text-blue-800 mb-6">Módulo 3: La Universidad en Acción: Estructura, Metodologías y Herramientas</h2>
+                    <p class="text-lg text-gray-700 mb-8">Debes dominar la estructura para poder guiar a tus compañeros con certeza.</p>
+                    
+                    <!-- Tema 3.1 -->
+                    <div class="mb-8 p-4 bg-blue-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">3.1: Metodología de Estudio y Estructura CNCI (Metodología NOVA)</h3>
+                        <h4 class="font-bold mt-4 text-blue-600">Metodologías Clave:</h4>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-2">
+                            <li><span class="font-semibold">Materias Unificadas (1º y 2º Cuatrimestre):</span> Dos materias de tronco común se unen temáticamente para <span class="font-bold text-green-600">reducir la carga de trabajo</span> y mejorar la adaptación.</li>
+                            <li><span class="font-semibold">Modelo Educativo Regular (A partir del 3º Cuatrimestre):</span> Se cursan 2 materias por mes durante 3 meses, seguido de un mes de descanso.</li>
+                            <li><span class="font-semibold">Game-Based Learning (Materias específicas):</span> El Proyecto Modular (PM) y el Proyecto Integrador (PI) <span class="font-bold text-orange-600">se unifican</span> en la dinámica del juego (simulación), promoviendo la certificación del logro.</li>
+                        </ul>
+                    </div>
 
-            // Solo renderizar inmediatamente si estamos en modo Demo (si firebase no se inicializó)
-            if (!firebaseInitialized) {
-                renderCourseStructure(); 
-                navigateToModule(currentModuleIndex, true); 
+                    <!-- Tema 3.2 -->
+                    <div class="mb-8 p-4 bg-orange-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-orange-700 mb-3">3.2: Herramientas Digitales y Recursos de Valor 💻</h3>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-2">
+                            <li><span class="font-semibold">Correo Institucional:</span> Medio <span class="font-bold">OFICIAL</span> (matricula@cncivirtual.mx). Puerta de acceso a Office 365, Blackboard y Biblioteca Virtual.</li>
+                            <li><span class="font-semibold">Centro de Idiomas:</span> Programa de inglés (A1 a B2). Al acreditar, se obtiene una <span class="font-bold text-blue-600">Constancia Digital</span> (Nivel B2 es requisito para Titulación).</li>
+                        </ul>
+                        <h4 class="font-bold mt-4 text-blue-600">Plataformas Clave:</h4>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-2">
+                            <li><span class="font-semibold">Biblioteca Virtual:</span> Enlazada con Office 365. Colección vasta de libros y artículos. <span class="font-bold">Principal recurso para evitar el plagio.</span></li>
+                            <li><span class="font-semibold">Portal del Alumno:</span> Para <span class="font-bold">trámites personales, estatus académico y seguimiento de pagos</span> (Información administrativa).</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Tema 3.3 -->
+                    <div class="mb-8 p-4 bg-gray-100 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3">3.3: Servicios Estudiantiles (Tu Contacto de Referencia)</h3>
+                        <p class="mb-3">Tu labor es canalizar. <span class="font-bold">No intentes resolver</span> lo que ellos pueden solucionar formalmente.</p>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg shadow-md">
+                                <thead class="bg-blue-100">
+                                    <tr>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Contacto</th>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Medio</th>
+                                        <th class="py-2 px-4 border-b text-left text-sm font-semibold text-blue-700">Horarios</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-3 px-4 border-b font-semibold text-blue-800">Servicios Estudiantiles</td>
+                                        <td class="py-3 px-4 border-b">Llamadas: 800 681 53 14 (Opción 4 y 5)</td>
+                                        <td class="py-3 px-4 border-b">Lunes a viernes: 9:00 am a 8:00 pm</td>
+                                    </tr>
+                                    <tr class="bg-yellow-50">
+                                        <td class="py-3 px-4 border-b font-semibold text-orange-700">Servicios Estudiantiles</td>
+                                        <td class="py-3 px-4 border-b">Correo: serviciosestudiantiles@cncivirtual.mx</td>
+                                        <td class="py-3 px-4 border-b">Sábados: 9:00 am a 2:00 pm</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder de Imagen -->
+                    <div class="mt-8 p-4 bg-gray-200 text-center rounded-lg border-2 border-dashed border-gray-400">
+                        <p class="text-gray-600 font-semibold">📍 Placeholder para Imagen de Apoyo</p>
+                        <p class="text-sm text-gray-500">Aquí irá tu imagen de apoyo del Módulo 3 (Ej. Logos de plataformas clave, diagrama NOVA).</p>
+                        <button onclick="downloadPlaceholder(3)" class="mt-2 text-blue-600 hover:text-blue-800 text-xs font-medium">
+                            (Descargar Placeholder)
+                        </button>
+                    </div>
+
+                    <div class="flex justify-end mt-10">
+                        <button onclick="startQuiz(3)" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-full hover:bg-orange-600 transition duration-300 quiz-button-animate">
+                            ¡Iniciar Quiz del Módulo 3! 🚀
+                        </button>
+                    </div>
+                `,
+                quiz: [
+                    {
+                        question: "Si un alumno te pregunta qué sucede con el Proyecto Modular en una materia con Game-Based Learning, ¿cuál debe ser tu respuesta?",
+                        options: [
+                            "Debe realizar el Proyecto Modular y el Proyecto Integrador por separado, como siempre.",
+                            "Los proyectos Modular e Integrador <span class='font-bold'>se unifican</span> en la dinámica del juego (simulación).",
+                            "El Proyecto Modular se elimina completamente y solo debe hacer el Proyecto Integrador.",
+                            "Debe llamar a Servicios Estudiantiles para que le expliquen el nuevo formato."
+                        ],
+                        correct: 1,
+                        explanation: "En Game-Based Learning, el PM y el PI se unifican en la dinámica del juego, que es un entorno de simulación."
+                    },
+                    {
+                        question: "¿Cuál es la diferencia clave entre la Biblioteca Virtual y el Portal del Alumno?",
+                        options: [
+                            "La Biblioteca Virtual es para Office 365, el Portal es para Blackboard.",
+                            "La Biblioteca Virtual contiene libros y artículos para proyectos; el Portal del Alumno es para trámites personales y estatus académico.",
+                            "Ambos son lo mismo, solo que con diferente nombre.",
+                            "El Portal del Alumno sirve para acceder al Centro de Idiomas, y la Biblioteca para el correo institucional."
+                        ],
+                        correct: 1,
+                        explanation: "La Biblioteca Virtual es el recurso académico (libros/artículos); el Portal del Alumno es la herramienta administrativa (trámites, pagos, estatus)."
+                    },
+                    {
+                        question: "¿Qué beneficio adicional obtiene el alumno al acreditar un nivel del Programa de Inglés (Centro de Idiomas)?",
+                        options: [
+                            "Un bono de $1200 MXN.",
+                            "Una exención total del Servicio Social.",
+                            "Una <span class='font-bold'>Constancia Digital</span> por cada nivel acreditado, aumentando su competitividad laboral.",
+                            "La posibilidad de inscribir tres materias en lugar de dos."
+                        ],
+                        correct: 2,
+                        explanation: "Al acreditar un nivel, el alumno recibe una Constancia Digital, y alcanzar el nivel B2 es requisito para la Titulación/Certificado."
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Módulo 4: El Curso de Inducción 🚀",
+                content: `
+                    <h2 class="text-3xl font-bold text-blue-800 mb-6">Módulo 4: El Curso de Inducción</h2>
+                    <p class="text-lg text-gray-700 mb-8">Este es el módulo central para los Mentores B (Inducción), ya que deben asegurar la acreditación inicial del alumno.</p>
+                    
+                    <!-- Tema 4.1 -->
+                    <div class="mb-8 p-4 bg-blue-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">4.1: Reglas de Acreditación de Inducción</h3>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-2">
+                            <li><span class="font-semibold">Duración:</span> 2 semanas (<span class="font-bold">14 días naturales</span>).</li>
+                            <li><span class="font-semibold">Acreditación Mínima:</span> Calificación <span class="text-red-600 font-bold">igual o mayor a 7.0.</span></li>
+                            <li><span class="font-semibold">Consecuencia:</span> Sin acreditación, el alumno <span class="font-bold">no puede iniciar sus módulos de estudio</span> ni se le asigna su matrícula formal.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tema 4.2 -->
+                    <div class="mb-8 p-4 bg-orange-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-orange-700 mb-3">4.2: El Proyecto Central: Reto APA</h3>
+                        <p class="mb-3">El proyecto de Inducción se enfoca en el <span class="font-bold text-blue-600">"Reto APA"</span>, promoviendo la <span class="font-bold">Ética Académica</span> y el respeto por los derechos de autor.</p>
+                        <h4 class="font-bold mt-4 text-orange-600">Tu Labor como Mentor B (Inducción):</h4>
+                        <p class="ml-4 text-gray-600">Debes ser un promotor de la honestidad académica. Explica que el APA es una <span class="font-medium">herramienta de valor</span> que respalda su credibilidad profesional y <span class="font-bold">evita la cancelación de trabajos por plagio.</span></p>
+                    </div>
+
+                    <!-- Placeholder de Imagen -->
+                    <div class="mt-8 p-4 bg-gray-200 text-center rounded-lg border-2 border-dashed border-gray-400">
+                        <p class="text-gray-600 font-semibold">📍 Placeholder para Imagen de Apoyo</p>
+                        <p class="text-sm text-gray-500">Aquí irá tu imagen de apoyo del Módulo 4 (Ej. Ícono de checkmark/cruz, logo de APA).</p>
+                        <button onclick="downloadPlaceholder(4)" class="mt-2 text-blue-600 hover:text-blue-800 text-xs font-medium">
+                            (Descargar Placeholder)
+                        </button>
+                    </div>
+
+                    <div class="flex justify-end mt-10">
+                        <button onclick="startQuiz(4)" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-full hover:bg-orange-600 transition duration-300 quiz-button-animate">
+                            ¡Iniciar Quiz del Módulo 4! 🚀
+                        </button>
+                    </div>
+                `,
+                quiz: [
+                    {
+                        question: "¿Cuál es la calificación mínima requerida para acreditar el Curso de Inducción y por qué es crucial esta acreditación?",
+                        options: [
+                            "7.5; es crucial porque sin ella no puede ver la Biblioteca Virtual.",
+                            "<span class='font-bold'>7.0;</span> es crucial porque sin ella <span class='font-bold'>no puede iniciar sus módulos de estudio</span> ni se le asigna matrícula formal.",
+                            "6.0; es crucial para recibir su primer bono de mentoría.",
+                            "8.0; es crucial para empezar su Servicio Social."
+                        ],
+                        correct: 1,
+                        explanation: "La calificación mínima es 7.0 y es crucial porque su no acreditación detiene completamente el proceso del alumno para iniciar sus materias."
+                    },
+                    {
+                        question: "¿Cuál es el enfoque del Proyecto Central del Curso de Inducción?",
+                        options: [
+                            "Una investigación profunda sobre la historia de la universidad.",
+                            "El diseño de su Entorno Personal de Aprendizaje (PLE).",
+                            "El 'Reto APA', promoviendo la Ética Académica y el respeto a los derechos de autor.",
+                            "Una actividad de cálculo de Metas SMART."
+                        ],
+                        correct: 2,
+                        explanation: "El proyecto se enfoca en el 'Reto APA', que es esencial para la Ética Académica y evitar el plagio."
+                    },
+                    {
+                        question: "Si un alumno te pregunta sobre dudas de qué información añadir en sus actividades de Inducción, ¿qué le responderías?",
+                        options: [
+                            "Le compartirías exactamente la información que debe poner para asegurar su 7.0.",
+                            "Le canalizarías inmediatamente a Servicios Estudiantiles.",
+                            "Le recordarías que tu rol es de guía de recursos, pero <span class='font-bold'>nunca debes interferir en la elaboración de trabajos</span> o dar respuestas.",
+                            "Le dirías que lo investigue en Google, sin darle ningún recurso CNCI."
+                        ],
+                        correct: 2,
+                        explanation: "Tu rol es de acompañamiento experiencial y de guía a recursos; nunca debes interferir en la elaboración de trabajos o dar respuestas, ya que esto compromete la integridad académica de ambos."
+                    }
+                ]
+            },
+            {
+                id: 5,
+                title: "Módulo 5: Planificación y Reporte: Herramientas de Gestión 📊",
+                content: `
+                    <h2 class="text-3xl font-bold text-blue-800 mb-6">Módulo 5: Planificación y Reporte: Herramientas de Gestión</h2>
+                    <p class="text-lg text-gray-700 mb-8">La eficiencia del Mentor se mide en su capacidad de planificación y en la <span class="font-bold text-red-600">entrega rigurosa de reportes.</span></p>
+                    
+                    <!-- Tema 5.1 -->
+                    <div class="mb-8 p-4 bg-blue-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">5.1: Herramientas de Auto-Gestión</h3>
+                        <h4 class="font-bold mt-4 text-blue-600">Entorno Personal de Aprendizaje (PLE) (Mentores A):</h4>
+                        <p class="ml-4 text-gray-600 mb-3">El PLE es tu <span class="font-bold text-orange-600">carta de presentación visual</span>. Úsalo como material de presentación mostrando de forma ordenada tus estrategias de estudio, herramientas digitales (Google Calendar, Notion, etc.) y tus mejores tips.</p>
+                        <h4 class="font-bold mt-4 text-blue-600">Objetivos S.M.A.R.T.:</h4>
+                        <p class="ml-4 text-gray-600">Orientar a tus compañeros con esta metodología asegura que las metas sean alcanzables y medibles (Specific, Measurable, Achievable, Relevant, Time-bound). Ej: Contactar al 100% de asignados en los primeros 3 días.</p>
+                    </div>
+
+                    <!-- Tema 5.2 -->
+                    <div class="mb-8 p-4 bg-orange-50 rounded-xl border border-orange-300">
+                        <h3 class="text-2xl font-semibold text-orange-700 mb-3">5.2: El Reporte Semanal: Evidencia y Seguimiento 📝</h3>
+                        <p class="mb-3">El Reporte de Actividades es la evidencia central. Se llena en un <span class="font-bold">enlace Excel web</span> proporcionado al inicio de cada mes.</p>
+                        
+                        <h4 class="font-bold mt-4 text-blue-600">Frecuencia y Contenido:</h4>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-1">
+                            <li><span class="font-semibold">Mentor A (1er Cuatrimestre):</span> Frecuencia <span class="font-bold">Semanal.</span></li>
+                            <li><span class="font-semibold">Mentor B (Inducción):</span> Frecuencia <span class="font-bold">Diaria</span> (priorizando sábados y domingos).</li>
+                            <li><span class="font-semibold">Contenido Obligatorio:</span> Registro de la actividad semanal/diaria, <span class="font-bold text-red-600">Comentario individual de CADA compañero</span> (incluso sin respuesta), e identificación de casos de riesgo/baja.</li>
+                        </ul>
+
+                        <p class="mt-4 font-bold text-red-600">Consecuencia del Incumplimiento:</p>
+                        <p class="ml-4 text-gray-600">El incumplimiento constante <span class="font-bold">impacta directamente en la liberación de tu Servicio Social o la obtención de tu Bono.</span></p>
+                    </div>
+
+                    <!-- Placeholder de Imagen -->
+                    <div class="mt-8 p-4 bg-gray-200 text-center rounded-lg border-2 border-dashed border-gray-400">
+                        <p class="text-gray-600 font-semibold">📍 Placeholder para Imagen de Apoyo</p>
+                        <p class="text-sm text-gray-500">Aquí irá tu imagen de apoyo del Módulo 5 (Ej. Formato del Reporte Excel).</p>
+                        <button onclick="downloadPlaceholder(5)" class="mt-2 text-blue-600 hover:text-blue-800 text-xs font-medium">
+                            (Descargar Placeholder)
+                        </button>
+                    </div>
+
+                    <div class="flex justify-end mt-10">
+                        <button onclick="startQuiz(5)" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-full hover:bg-orange-600 transition duration-300 quiz-button-animate">
+                            ¡Iniciar Quiz del Módulo 5! 🚀
+                        </button>
+                    </div>
+                `,
+                quiz: [
+                    {
+                        question: "¿Cuál es el propósito principal del PLE (Entorno Personal de Aprendizaje) en la interacción con tus compañeros mentoreados (Mentor A)?",
+                        options: [
+                            "Funcionar como una herramienta para revisar sus calificaciones.",
+                            "Servir como una base de datos de trámites administrativos de la Universidad.",
+                            "Actuar como una <span class='font-bold'>carta de presentación visual</span> que muestre tus estrategias de estudio, tips y herramientas digitales.",
+                            "Es un requisito académico personal que no se comparte con los mentoreados."
+                        ],
+                        correct: 2,
+                        explanation: "El PLE es un material de presentación visual que estandariza la calidad de tu consejo, mostrando tus estrategias y herramientas personales."
+                    },
+                    {
+                        question: "¿Cuál es la frecuencia de entrega del Reporte de Actividades para un Mentor B (Inducción)?",
+                        options: [
+                            "Mensual.",
+                            "Semanal.",
+                            "<span class='font-bold'>Diaria</span> (priorizando la atención en sábados y domingos).",
+                            "Quincenal."
+                        ],
+                        correct: 2,
+                        explanation: "El Mentor B (Inducción) debe realizar su reporte diariamente para dar atención prioritaria a sus compañeros en la fase crítica de 14 días."
+                    },
+                    {
+                        question: "¿Cuál es la consecuencia para un Mentor en modalidad Servicio Social si entrega <span class='font-medium'>menos del 50%</span> de los reportes solicitados en un módulo?",
+                        options: [
+                            "Recibe automáticamente el Bono de Excelencia.",
+                            "Debe realizar el curso de Inducción de nuevo.",
+                            "Se <span class='font-bold'>extiende el tiempo de su Servicio Social</span>, lo cual podría retrasar su egreso.",
+                            "Se le asignan más compañeros para compensar."
+                        ],
+                        correct: 2,
+                        explanation: "El incumplimiento riguroso de reportes en la modalidad SS resulta en la extensión del tiempo de Servicio Social, lo cual puede retrasar la liberación de sus horas."
+                    }
+                ]
+            },
+            {
+                id: 6,
+                title: "Módulo 6: Mentoría en Acción: Seguimiento, Sesiones y Estrategias ✅",
+                content: `
+                    <h2 class="text-3xl font-bold text-blue-800 mb-6">Módulo 6: Mentoría en Acción: Seguimiento, Sesiones y Estrategias</h2>
+                    <p class="text-lg text-gray-700 mb-8">Maximiza tu impacto focalizando tu acción en los momentos cruciales del alumno.</p>
+                    
+                    <!-- Tema 6.1 -->
+                    <div class="mb-8 p-4 bg-blue-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-blue-700 mb-3">6.1: Flujo de Acompañamiento por Rol (Semanas Críticas)</h3>
+                        <h4 class="font-bold mt-4 text-blue-600">Mentor B (Inducción):</h4>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-1">
+                            <li><span class="font-semibold">Día 1-3:</span> Llamada de bienvenida y comprobación de accesos/correo.</li>
+                            <li><span class="font-semibold">Día 8-14:</span> <span class="font-bold text-red-600">Seguimiento intensivo a casos de riesgo</span>, enfocándose en la Acreditación (calificación 7).</li>
+                        </ul>
+                        <h4 class="font-bold mt-4 text-blue-600">Mentor A (1er Cuatrimestre):</h4>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-1">
+                            <li><span class="font-semibold">Día 1-7:</span> Llamada de inicio de módulo. Énfasis en <span class="font-bold">Organización del tiempo</span> y uso de Biblioteca.</li>
+                            <li><span class="font-semibold">Día 15-30:</span> Refuerzo de la motivación y prevención del *burnout* (agotamiento), revisando la Metodología NOVA.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tema 6.2 -->
+                    <div class="mb-8 p-4 bg-orange-50 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-orange-700 mb-3">6.2: Participación en Sesiones Grupales 🤝</h3>
+                        <p class="mb-3">Los Mentores A y B deben participar en las Sesiones Grupales (<span class="font-bold">Mentoría en Acción</span>) programadas mensualmente.</p>
+                        <h4 class="font-bold mt-4 text-orange-600">Temas a Compartir Obligatorios:</h4>
+                        <ul class="list-disc list-inside ml-4 mt-2 text-gray-600 space-y-1">
+                            <li>Experiencia personal de superación.</li>
+                            <li>Consejos de <span class="font-bold">Organización del Tiempo</span> y gestión de la plataforma.</li>
+                            <li>Funciones y <span class="font-bold">límites del apoyo</span> (explicando cuándo contactar a Orientadores).</li>
+                        </ul>
+                        <h4 class="font-bold mt-4 text-red-600">Regla de Comunicación (WhatsApp):</h4>
+                        <p class="ml-4 text-gray-600">El Alumno Mentor debe ser incluido en el grupo de WhatsApp <span class="font-bold">OFICIAL</span> y <span class="font-bold underline">no deberá crear grupos adicionales</span> para asegurar que toda la información sea controlada y unificada.</p>
+                    </div>
+                    
+                    <!-- Tema 6.3 -->
+                    <div class="mb-8 p-4 bg-gray-100 rounded-xl">
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-3">6.3: Estrategia de Respuesta y Colaboración</h3>
+                        <h4 class="font-bold mt-4 text-blue-600">Estrategia de Respuesta (Fórmula):</h4>
+                        <p class="ml-4 text-gray-700 font-bold mb-3">1. Empatía ➡️ 2. Reconocimiento de la dificultad ➡️ 3. Solución basada en tu experiencia ➡️ 4. Motivación ➡️ 5. Canalización (si es necesario).</p>
+                        <p class="ml-4 text-sm italic text-gray-600">Ejemplo: "Entiendo que el APA es complicado (Empatía), a mí también me costó (Reconocimiento). Te recomiendo ver este tutorial (Solución). ¡Tú puedes dominarlo! (Motivación)."</p>
+                    </div>
+
+                    <!-- Placeholder de Imagen -->
+                    <div class="mt-8 p-4 bg-gray-200 text-center rounded-lg border-2 border-dashed border-gray-400">
+                        <p class="text-gray-600 font-semibold">📍 Placeholder para Imagen de Apoyo</p>
+                        <p class="text-sm text-gray-500">Aquí irá tu imagen de apoyo del Módulo 6 (Ej. Diagrama del flujo de acompañamiento).</p>
+                        <button onclick="downloadPlaceholder(6)" class="mt-2 text-blue-600 hover:text-blue-800 text-xs font-medium">
+                            (Descargar Placeholder)
+                        </button>
+                    </div>
+
+                    <div class="flex justify-end mt-10">
+                        <button onclick="startQuiz(6)" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-full hover:bg-orange-600 transition duration-300 quiz-button-animate">
+                            ¡Iniciar Quiz del Módulo 6! 🚀
+                        </button>
+                    </div>
+                `,
+                quiz: [
+                    {
+                        question: "Si eres un Mentor A (1er Cuatrimestre), ¿cuál es el tema de apoyo que debes priorizar al inicio del mes (Día 1-7)?",
+                        options: [
+                            "El seguimiento intensivo a casos de riesgo de Inducción.",
+                            "La <span class='font-bold'>Organización del tiempo</span> del alumno para manejar las dos materias unificadas y el uso eficiente de la Biblioteca Virtual.",
+                            "La recopilación de los comentarios individuales de cada compañero.",
+                            "La realización de la Sesión Grupal obligatoria."
+                        ],
+                        correct: 1,
+                        explanation: "El Mentor A (1er Cuatrimestre) se enfoca en la Organización del Tiempo y el uso de recursos como la Biblioteca, ya que el alumno está lidiando con su primera carga académica real (dos materias)."
+                    },
+                    {
+                        question: "¿Por qué es una regla que el Alumno Mentor <span class='font-medium'>no deba crear grupos de WhatsApp adicionales</span> a los oficiales de la Universidad?",
+                        options: [
+                            "Para reducir la carga de trabajo de los Orientadores.",
+                            "Para que el Mentor tenga más tiempo para sus propios estudios.",
+                            "Para asegurar que toda la información sea <span class='font-bold'>controlada, oficial y unificada</span>, evitando duplicidad o datos incorrectos.",
+                            "Porque el contacto debe ser exclusivamente por correo institucional."
+                        ],
+                        correct: 2,
+                        explanation: "La regla busca mantener un flujo de comunicación oficial y evitar la difusión de información incorrecta o duplicada entre canales no controlados."
+                    },
+                    {
+                        question: "Según la fórmula de respuesta estratégica, ¿cuál es el paso que siempre debe seguirse inmediatamente después de reconocer la dificultad del alumno?",
+                        options: [
+                            "La Motivación.",
+                            "La <span class='font-bold'>Solución basada en tu experiencia</span> (ej. compartir un tutorial o tip).",
+                            "La Canalización al Orientador.",
+                            "La Empatía."
+                        ],
+                        correct: 1,
+                        explanation: "La secuencia es: Empatía ➡️ Reconocimiento de la dificultad ➡️ Solución basada en tu experiencia ➡️ Motivación ➡️ Canalización."
+                    }
+                ]
             }
-        }
+        ];
 
-        // --- Carga de Datos en Tiempo Real (onSnapshot) ---
-        function loadCourseData() {
-             // Solo se ejecuta si Firebase inicializó correctamente
-            const courseDocRef = doc(db, COURSE_DOCUMENT_PATH);
+        // --- ESTADO GLOBAL ---
+        let courseData = JSON.parse(localStorage.getItem('cnciMentorCourseData')) || initialCourseData;
+        let currentModuleId = 1;
+        let isQuizActive = false;
+        let quizResults = null;
 
-            onSnapshot(courseDocRef, (docSnapshot) => {
-                if (docSnapshot.exists()) {
-                    courseData = docSnapshot.data();
-                } else {
-                    courseData = initialCourseData;
-                    window.saveCourseData(); // Guarda los datos iniciales
-                }
-                document.getElementById('loading-spinner').classList.add('hidden-item');
-                renderCourseStructure(); // Renderiza la estructura (tabs y título)
-                navigateToModule(currentModuleIndex, true); // Renderiza el módulo activo
-                if (document.getElementById('admin-panel').classList.contains('active')) {
-                     renderAdminPanel(); // Si el admin está abierto, actualizarlo
-                }
-            }, (error) => {
-                console.error("Error al obtener datos del curso en tiempo real:", error);
-                document.getElementById('loading-spinner').textContent = 'Error al cargar el contenido del curso.';
-            });
+        // --- FUNCIONES DE ADMINISTRACIÓN ---
+        const ADMIN_CODE = "1234";
+
+        function promptAdminAccess() {
+            // Reemplazando window.prompt con una simulación de modal simple para cumplir la restricción
+            const code = prompt("Introduce el código de administrador (Sugerencia: " + ADMIN_CODE + "):");
+            if (code === ADMIN_CODE) {
+                loadAdminPanel();
+            } else if (code !== null) {
+                // Simulación de alert
+                const contentArea = document.getElementById('contentArea');
+                contentArea.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">Error de Acceso:</strong>
+                    <span class="block sm:inline">Código incorrecto. Acceso denegado.</span>
+                </div>`;
+                renderMenu(); // Asegura que el menú se vea bien.
+                setTimeout(() => loadModule(currentModuleId), 2000);
+            }
         }
         
-        // --- Renderiza la estructura principal (Título y Pestañas de Navegación) ---
-        function renderCourseStructure() {
-            document.getElementById('course-main-title').textContent = courseData.title || 'Curso de Capacitación';
-            document.getElementById('course-title-header').textContent = courseData.title || 'Curso de Capacitación';
-            document.getElementById('course-description').textContent = courseData.description || 'Descripción del curso.';
-            
-            const tabsContainer = document.getElementById('module-tabs');
-            // Eliminado onclick, ahora se usa data-index para el event delegation
-            tabsContainer.innerHTML = (courseData.modules || []).map((module, index) => `
-                <button data-index="${index}" 
-                        class="module-tab-item py-3 px-6 text-gray-500 font-medium text-lg focus:outline-none 
-                        ${index === currentModuleIndex ? 'active' : ''}">
-                    ${index + 1}. ${module.title.substring(0, module.title.indexOf('(') > -1 ? module.title.indexOf('(') : module.title.length).trim()}
+        // Carga la interfaz de edición simplificada
+        function loadAdminPanel() {
+            isQuizActive = false;
+            const contentArea = document.getElementById('contentArea');
+            const tabsHTML = courseData.map((module, index) => `
+                <button 
+                    onclick="renderAdminModule(${module.id})" 
+                    class="tab-button py-2 px-4 text-sm font-medium rounded-t-lg transition duration-200 
+                    ${module.id === currentModuleId ? 'bg-white text-blue-800 shadow-inner' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}"
+                    data-module-id="${module.id}">
+                    ${module.title.split(':')[0]}
                 </button>
             `).join('');
+
+            contentArea.innerHTML = `
+                <h2 class="text-3xl font-bold text-red-700 mb-4">Panel de Administración del Curso 🛠️</h2>
+                <p class="text-lg text-gray-700 mb-6">Edita el contenido (HTML) y el Quiz (JSON) de cada módulo.</p>
+
+                <div class="flex border-b border-gray-300 mb-6" id="adminTabs">
+                    ${tabsHTML}
+                </div>
+                
+                <div id="adminModuleEditor" class="p-4 bg-white rounded-lg shadow-lg border border-gray-200">
+                    <!-- Contenido del módulo activo se renderizará aquí -->
+                </div>
+                
+                <div id="adminMessage" class="mt-4 text-sm font-semibold text-red-500"></div>
+
+                <div class="flex justify-between mt-8">
+                    <button onclick="saveCourseData()" class="bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-red-700 transition duration-300">
+                        Guardar Cambios y Recargar Módulos
+                    </button>
+                    <button onclick="loadModule(${currentModuleId})" class="bg-gray-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-gray-600 transition duration-300">
+                        Cancelar y Volver al Módulo
+                    </button>
+                </div>
+            `;
             
-            // Renderizar referencias solo la estructura (el contenido se maneja en navigateToModule)
-            renderReferencesStructure();
-            lucide.createIcons();
+            // Renderizar el primer módulo o el módulo actual por defecto
+            renderAdminModule(currentModuleId); 
+            renderMenu();
         }
 
-        // --- Navegación entre Módulos (GLOBAL) ---
-        window.navigateToModule = (index, forceRender = false) => {
-            if (!courseData.modules || index < 0 || index >= courseData.modules.length) {
-                return; // Fuera de límites o datos no cargados
-            }
-            if (index === currentModuleIndex && !forceRender) {
-                return; // Ya está en ese módulo
-            }
+        // Renderiza el contenido y quiz de un módulo específico para edición
+        function renderAdminModule(moduleId) {
+            currentModuleId = moduleId;
+            const module = courseData.find(m => m.id === moduleId);
+            if (!module) return;
 
-            currentModuleIndex = index;
-            
-            // 1. Actualizar estado de las pestañas
-            renderCourseStructure(); 
-            
-            // 2. Renderizar el contenido del módulo
-            renderActiveModule(); 
-
-            // 3. Gestionar botones de Anterior/Siguiente
-            document.getElementById('prev-module-btn').disabled = currentModuleIndex === 0;
-            document.getElementById('next-module-btn').disabled = currentModuleIndex === courseData.modules.length - 1;
-            
-            // 4. Mostrar referencias solo en el último módulo
-            const referencesSection = document.getElementById('references-section');
-            if (currentModuleIndex === courseData.modules.length - 1) {
-                referencesSection.classList.remove('hidden-item');
-            } else {
-                referencesSection.classList.add('hidden-item');
-            }
-        };
-
-        // --- Renderiza solo el módulo activo ---
-        function renderActiveModule() {
-            const module = courseData.modules[currentModuleIndex];
-            const modulesContainer = document.getElementById('modules-container');
-            modulesContainer.innerHTML = '';
-            
-            const moduleHtml = `
-                <div id="module-content" class="module-card bg-white p-6 md:p-8 rounded-xl shadow-lg border-t-4 border-blue-500 transition duration-300">
-                    <h3 class="text-3xl font-extrabold text-gray-800 mb-6 flex items-center">
-                        <span class="cnci-primary text-white text-base font-bold w-10 h-10 rounded-full flex items-center justify-center mr-3">${currentModuleIndex + 1}</span>
-                        ${module.title}
-                    </h3>
-                    
-                    <!-- Contenido Clave: Se renombró para que sea solo 'Contenido' -->
-                    <div class="space-y-6 text-gray-700 ml-5 border-l-2 pl-6">
-                        <h4 class="text-xl font-bold text-gray-800 mb-4">Contenido</h4>
-                        ${(module.content || []).map(c => renderContentItem(c)).join('')}
-                    </div>
-
-                    <!-- Preguntas de Comprensión -->
-                    ${module.questions && module.questions.length > 0 ? `<div class="mt-10 pt-6 border-t border-blue-100">
-                        <h4 class="text-2xl font-bold cnci-text-primary mb-5 flex items-center">
-                            <i data-lucide="check-circle" class="w-6 h-6 mr-2"></i> Cuestionario de Comprensión
-                        </h4>
-                        <div class="space-y-6">
-                            ${(module.questions || []).map((q, qIndex) => renderQuestion(currentModuleIndex, qIndex, q)).join('')}
-                        </div>
-                    </div>` : ''}
-
-                </div>
-            `;
-            modulesContainer.insertAdjacentHTML('beforeend', moduleHtml);
-            lucide.createIcons();
-        }
-
-        // --- Función auxiliar para renderizar el contenido del módulo (Soporte Multimedia) ---
-        function renderContentItem(item) {
-            switch (item.type) {
-                case 'heading':
-                    return `<h4 class="text-xl font-semibold mt-6 mb-2 text-blue-600">${item.text}</h4>`;
-                case 'paragraph':
-                    // Reemplazo de markdown simple para negritas
-                    const formattedText = item.text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-                    // Usar emojis para visualización atractiva
-                    const paragraphWithEmojis = formattedText
-                        .replace(/Filosofía/g, '💡 Filosofía')
-                        .replace(/Compromiso/g, '🤝 Compromiso')
-                        .replace(/Roles/g, '👤 Roles')
-                        .replace(/Ética/g, '⚖️ Ética')
-                        .replace(/Técnicas/g, '🗣️ Técnicas')
-                        .replace(/Confianza/g, '🤗 Confianza')
-                        .replace(/Motivación/g, '🎯 Motivación')
-                        .replace(/Referencia/g, '🔗 Referencia')
-                        .replace(/Inmersión/g, '📖 Inmersión')
-                        .replace(/Ecosistema/g, '☁️ Ecosistema')
-                        .replace(/Mapa/g, '🗺️ Mapa')
-                        .replace(/Estrategias/g, '🧠 Estrategias')
-                        .replace(/Llenado/g, '📝 Llenado')
-                        .replace(/Plan de Actividades/g, '🗓️ Plan de Actividades')
-                        .replace(/Plan de Contacto/g, '📞 Plan de Contacto');
-                        
-                    return `<p>${paragraphWithEmojis}</p>`;
-                case 'list':
-                    return `<ul class="list-disc list-inside ml-5 space-y-1 mt-2">${(item.items || []).map(i => `<li>${i}</li>`).join('')}</ul>`;
-                case 'html_embed':
-                    // Contenedor responsivo para iframe/video/imagen
-                    return `<div class="responsive-embed">${item.html || ''}</div>`;
-                default:
-                    return '';
-            }
-        }
-
-        // --- Renderizado de Pregunta de Opción Múltiple ---
-        function renderQuestion(moduleIndex, qIndex, question) {
-            return `
-                <div id="q-${moduleIndex}-${qIndex}" class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <p class="font-bold text-gray-800 mb-3">${qIndex + 1}. ${question.text}</p>
-                    <div class="space-y-2">
-                        ${(question.options || []).map((option, oIndex) => `
-                            <div onclick="checkAnswer(${moduleIndex}, ${qIndex}, ${oIndex}, this)" 
-                                 class="question-option p-3 bg-white rounded-md border border-gray-200 shadow-sm text-sm flex items-center">
-                                <span class="font-bold mr-2 w-5">${String.fromCharCode(65 + oIndex)})</span>
-                                <span class="flex-1">${option}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div id="feedback-${moduleIndex}-${qIndex}" class="mt-3 text-sm font-semibold hidden-item transition duration-500"></div>
-                </div>
-            `;
-        }
-
-        // --- Lógica del Quiz (Verificación de Respuesta) (GLOBAL) ---
-        window.checkAnswer = (moduleIndex, qIndex, selectedIndex, element) => {
-            const questionData = courseData.modules[moduleIndex].questions[qIndex];
-            const feedbackEl = document.getElementById(`feedback-${moduleIndex}-${qIndex}`);
-            const questionContainer = document.getElementById(`q-${moduleIndex}-${qIndex}`);
-            const options = Array.from(questionContainer.querySelectorAll('.question-option'));
-
-            // Prevenir múltiples clics
-            if (options[0].classList.contains('disabled')) return;
-            options.forEach(opt => opt.classList.add('disabled'));
-
-            const isCorrect = selectedIndex === questionData.correctIndex;
-            const correctOption = options[questionData.correctIndex];
-
-            // Marcar la respuesta seleccionada
-            element.classList.remove('bg-white', 'border-gray-200');
-            element.classList.add(isCorrect ? 'bg-green-100' : 'bg-red-100');
-            element.classList.add(isCorrect ? 'border-green-500' : 'border-red-500');
-
-            // Mostrar feedback
-            feedbackEl.classList.remove('hidden-item');
-            if (isCorrect) {
-                feedbackEl.textContent = '¡Respuesta Correcta! ✅ Excelente comprensión del tema.';
-                feedbackEl.classList.remove('text-red-600');
-                feedbackEl.classList.add('text-green-600');
-            } else {
-                feedbackEl.textContent = `Respuesta Incorrecta. ❌ La opción correcta era: ${String.fromCharCode(65 + questionData.correctIndex)}).`;
-                feedbackEl.classList.remove('text-green-600');
-                feedbackEl.classList.add('text-red-600');
-                // Resaltar la correcta
-                correctOption.classList.add('bg-green-200', 'border-green-500');
-            }
-        };
-        
-        // --- Renderizado de Referencias ---
-        function renderReferencesStructure() {
-            const listEl = document.getElementById('references-list');
-            listEl.innerHTML = '';
-            
-            if (courseData.references && courseData.references.length > 0) {
-                 courseData.references.forEach(ref => {
-                    listEl.innerHTML += `
-                        <li class="flex items-start">
-                            <i data-lucide="book-open" class="w-4 h-4 mt-1 mr-2 flex-shrink-0 text-blue-500"></i>
-                            <span>
-                                <strong>${ref.author}</strong> 
-                                <em>${ref.title}.</em> 
-                                ${ref.source}
-                            </span>
-                        </li>
-                    `;
-                 });
-            } else {
-                 document.getElementById('references-list').innerHTML = `<li class="text-gray-500">No hay referencias cargadas.</li>`;
-            }
-        }
-
-
-        // ***************************************
-        // ********* PANEL DE ADMINISTRACIÓN (FUNCIONES DE RENDERIZADO GLOBALIZADAS) *********
-        // ***************************************
-
-        // --- Renderizado del Panel de Administración ---
-        function renderAdminPanel() {
-            const editorEl = document.getElementById('admin-content-editor');
-            editorEl.innerHTML = ''; 
-
-            // 1. Edición de Título y Descripción
-            editorEl.innerHTML += `
-                <div class="p-6 bg-gray-100 rounded-lg shadow-inner">
-                    <h3 class="text-xl font-bold mb-3 text-gray-700">Información General del Curso</h3>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Título:</label>
-                    <input id="admin-title" type="text" value="${courseData.title || ''}" class="admin-input" oninput="courseData.title = this.value">
-                    
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción:</label>
-                    <textarea id="admin-description" class="admin-textarea h-20" oninput="courseData.description = this.value">${courseData.description || ''}</textarea>
-                </div>
-            `;
-            
-            // 2. Edición de Referencias
-             editorEl.innerHTML += `
-                <div class="p-6 bg-yellow-50 rounded-lg shadow-inner border border-yellow-200">
-                    <h3 class="text-xl font-bold mb-3 text-gray-700">Gestión de Referencias Bibliográficas</h3>
-                    <div id="admin-references-container" class="space-y-4">
-                        ${(courseData.references || []).map((ref, rIndex) => `
-                            <div class="p-3 border rounded-md bg-white flex items-center space-x-3">
-                                <div class="flex-grow">
-                                    <input type="text" placeholder="Autor y Año" class="admin-input p-1 my-1 text-sm" value="${ref.author}" oninput="courseData.references[${rIndex}].author = this.value">
-                                    <input type="text" placeholder="Título" class="admin-input p-1 my-1 text-sm" value="${ref.title}" oninput="courseData.references[${rIndex}].title = this.value">
-                                    <input type="text" placeholder="Fuente/Editorial" class="admin-input p-1 my-1 text-sm" value="${ref.source}" oninput="courseData.references[${rIndex}].source = this.value">
-                                </div>
-                                <button onclick="removeReference(${rIndex})" class="text-red-500 hover:text-red-700 p-2 rounded-full bg-red-100 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <button onclick="addReference()" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 rounded-lg transition duration-200 shadow-md flex items-center justify-center"><i data-lucide="plus" class="w-4 h-4 mr-2"></i> Añadir Referencia</button>
-                </div>
-            `;
-            
-            // 3. Edición de Módulos
-            editorEl.innerHTML += `
-                <h3 class="text-2xl font-bold mt-8 mb-4 text-gray-800">Módulos del Curso</h3>
-                <div id="admin-modules-container" class="space-y-10">
-                    ${(courseData.modules || []).map((mod, mIndex) => renderAdminModule(mod, mIndex)).join('')}
-                </div>
-                <button onclick="addModule()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-lg flex items-center justify-center"><i data-lucide="file-plus" class="w-5 h-5 mr-2"></i> Añadir Nuevo Módulo</button>
-            `;
-            
-            lucide.createIcons();
-        }
-        
-        // (Las funciones de renderizado y CRUD restantes ya estaban globalizadas o no causaban problemas de alcance)
-        window.renderAdminModule = (mod, mIndex) => {
-            return `
-                <div id="admin-module-${mIndex}" class="p-6 bg-white rounded-xl shadow-lg border-t-4 border-blue-500">
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-xl font-extrabold text-blue-800">Módulo ${mIndex + 1}</h4>
-                        <button onclick="removeModule(${mIndex})" class="text-red-600 hover:text-red-800 transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-                    </div>
-                    
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Título del Módulo:</label>
-                    <input type="text" class="admin-input" value="${mod.title}" oninput="courseData.modules[${mIndex}].title = this.value">
-                    
-                    <!-- Edición de Contenido Clave -->
-                    <h5 class="font-bold mt-4 mb-2 text-gray-700 border-t pt-3">Contenido Multimedia y Texto:</h5>
-                    <div id="admin-content-${mIndex}" class="space-y-4 p-3 border rounded-lg bg-gray-50">
-                        ${(mod.content || []).map((c, cIndex) => renderAdminContentItem(mIndex, cIndex, c)).join('')}
-                    </div>
-                    <button onclick="addContentItem(${mIndex})" class="mt-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-1 px-3 rounded-md transition duration-200 text-sm flex items-center"><i data-lucide="plus" class="w-4 h-4 mr-1"></i> Añadir Contenido</button>
-
-                    <!-- Edición de Preguntas -->
-                    <h5 class="font-bold mt-6 mb-2 text-gray-700 border-t pt-3">Preguntas de Comprensión:</h5>
-                    <div id="admin-questions-${mIndex}" class="space-y-4 p-3 border rounded-lg bg-red-50">
-                        ${(mod.questions || []).map((q, qIndex) => renderAdminQuestion(mIndex, qIndex, q)).join('')}
-                    </div>
-                    <button onclick="addQuestion(${mIndex})" class="mt-3 bg-red-400 hover:bg-red-500 text-white font-medium py-1 px-3 rounded-md transition duration-200 text-sm flex items-center"><i data-lucide="help-circle" class="w-4 h-4 mr-1"></i> Añadir Pregunta</button>
-                </div>
-            `;
-        };
-
-        window.renderAdminContentItem = (mIndex, cIndex, item) => {
-             const typeSelect = `
-                <select class="admin-select w-1/3 mr-2" onchange="updateContentType(${mIndex}, ${cIndex}, this.value)">
-                    <option value="heading" ${item.type === 'heading' ? 'selected' : ''}>Encabezado (h4)</option>
-                    <option value="paragraph" ${item.type === 'paragraph' ? 'selected' : ''}>Párrafo</option>
-                    <option value="list" ${item.type === 'list' ? 'selected' : ''}>Lista (Viñetas)</option>
-                    <option value="html_embed" ${item.type === 'html_embed' ? 'selected' : ''}>Embed HTML (Video/Imagen)</option>
-                </select>
-            `;
-            
-            let contentInput;
-            if (item.type === 'list') {
-                const listItems = Array.isArray(item.items) ? item.items.join('\n') : '';
-                contentInput = `
-                    <textarea placeholder="Cada línea es una viñeta" class="admin-textarea h-20 text-sm" oninput="updateListContent(${mIndex}, ${cIndex}, this.value)">${listItems}</textarea>
-                `;
-            } else if (item.type === 'html_embed') {
-                contentInput = `
-                    <textarea placeholder="Pegar código HTML (<iframe>, <img>, etc.) aquí. NO usar <script>" class="admin-textarea h-24 text-sm font-mono" oninput="courseData.modules[${mIndex}].content[${cIndex}].html = this.value">${item.html || ''}</textarea>
-                `;
-            } else {
-                 contentInput = `
-                    <textarea placeholder="Texto del ${item.type === 'heading' ? 'Encabezado' : 'Párrafo'}" class="admin-textarea h-10 text-sm" oninput="courseData.modules[${mIndex}].content[${cIndex}].text = this.value">${item.text || ''}</textarea>
-                `;
-            }
-
-            return `
-                <div class="p-3 border rounded-md bg-white flex items-start space-x-3">
-                    ${typeSelect}
-                    <div class="flex-grow">
-                       ${contentInput}
-                    </div>
-                    <button onclick="removeContentItem(${mIndex}, ${cIndex})" class="text-red-500 hover:text-red-700 p-2 rounded-full bg-red-100 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
-                </div>
-            `;
-        };
-        
-        window.updateContentType = (mIndex, cIndex, newType) => {
-            const currentItem = courseData.modules[mIndex].content[cIndex];
-            if (currentItem.type !== newType) {
-                if (newType === 'list') {
-                    courseData.modules[mIndex].content[cIndex] = { type: 'list', items: [currentItem.text || 'Elemento de lista 1'] };
-                } else if (newType === 'html_embed') {
-                    courseData.modules[mIndex].content[cIndex] = { type: 'html_embed', html: currentItem.text ? `<p>${currentItem.text}</p>` : `<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=..." title="YouTube video player" frameborder="0" allowfullscreen></iframe>` };
+            // Actualizar botones de pestaña
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                if (parseInt(btn.dataset.moduleId) === moduleId) {
+                    btn.classList.replace('bg-gray-200', 'bg-white');
+                    btn.classList.add('text-blue-800', 'shadow-inner');
+                    btn.classList.remove('text-gray-600', 'hover:bg-gray-300');
+                } else {
+                    btn.classList.replace('bg-white', 'bg-gray-200');
+                    btn.classList.remove('text-blue-800', 'shadow-inner');
+                    btn.classList.add('text-gray-600', 'hover:bg-gray-300');
                 }
-                else {
-                    const textContent = Array.isArray(currentItem.items) ? currentItem.items.join(' ') : (currentItem.text || currentItem.html || 'Nuevo contenido');
-                    courseData.modules[mIndex].content[cIndex] = { type: newType, text: textContent };
-                }
-            }
-            renderAdminPanel(); // Re-renderizar el panel para actualizar los inputs
-        }
-        
-         window.updateListContent = (mIndex, cIndex, value) => {
-            const items = value.split('\n').filter(item => item.trim() !== '');
-            courseData.modules[mIndex].content[cIndex].items = items;
-        }
-
-        window.renderAdminQuestion = (mIndex, qIndex, question) => {
-            return `
-                <div class="p-4 border rounded-md bg-white space-y-2">
-                    <div class="flex justify-between items-center">
-                        <h6 class="font-semibold text-gray-700">Pregunta ${qIndex + 1}</h6>
-                         <button onclick="removeQuestion(${mIndex}, ${qIndex})" class="text-red-500 hover:text-red-700 transition"><i data-lucide="trash" class="w-4 h-4"></i></button>
-                    </div>
-
-                    <label class="block text-xs font-medium text-gray-500">Texto de la Pregunta:</label>
-                    <textarea class="admin-textarea h-10 text-sm" oninput="courseData.modules[${mIndex}].questions[${qIndex}].text = this.value">${question.text}</textarea>
-
-                    <label class="block text-xs font-medium text-gray-500">Opciones (Marque la Correcta):</label>
-                    <div class="space-y-1">
-                        ${(question.options || []).map((opt, oIndex) => `
-                            <div class="flex items-center space-x-2">
-                                <input type="radio" name="correct-q-${mIndex}-${qIndex}" 
-                                       id="correct-q-${mIndex}-${qIndex}-${oIndex}" 
-                                       ${question.correctIndex === oIndex ? 'checked' : ''}
-                                       onclick="courseData.modules[${mIndex}].questions[${qIndex}].correctIndex = ${oIndex}"
-                                       class="form-radio text-green-600">
-                                <label for="correct-q-${mIndex}-${qIndex}-${oIndex}" class="text-xs font-medium">Opción ${String.fromCharCode(65 + oIndex)}:</label>
-                                <input type="text" class="admin-input flex-1 p-1 text-xs my-0" 
-                                       value="${opt}" 
-                                       oninput="courseData.modules[${mIndex}].questions[${qIndex}].options[${oIndex}] = this.value">
-                            </div>
-                        `).join('')}
-                    </div>
-                    <button onclick="addOption(${mIndex}, ${qIndex})" class="mt-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-medium py-1 px-2 rounded-md transition duration-200"><i data-lucide="plus" class="w-3 h-3 mr-1 inline"></i> Añadir Opción</button>
-                </div>
-            `;
-        };
-
-        // --- Funciones CRUD de Módulos (GLOBAL) ---
-        window.addModule = () => {
-            if (!courseData.modules) courseData.modules = [];
-            courseData.modules.push({
-                id: courseData.modules.length + 1,
-                title: "Nuevo Módulo " + (courseData.modules.length + 1) + ": Título Provisional (Semana X)",
-                content: [{ type: "heading", text: "Nuevo Contenido" }, { type: "paragraph", text: "Este es un nuevo párrafo de contenido para el módulo." }],
-                questions: []
             });
-            renderAdminPanel();
-        };
 
-        window.removeModule = (mIndex) => {
-            if (confirm(`¿Está seguro de eliminar el Módulo ${mIndex + 1}? Esta acción no se puede deshacer.`)) {
-                courseData.modules.splice(mIndex, 1);
-                // Ajustar el índice de navegación si el módulo activo fue eliminado
-                if (currentModuleIndex >= courseData.modules.length && courseData.modules.length > 0) {
-                     currentModuleIndex = courseData.modules.length - 1;
-                } else if (courseData.modules.length === 0) {
-                     currentModuleIndex = 0;
-                }
-                renderAdminPanel();
+            // Convertir quiz a JSON string legible
+            const quizJSON = JSON.stringify(module.quiz, null, 2);
+
+            const editorHTML = `
+                <h3 class="text-2xl font-semibold text-blue-700 mb-4">Editando Módulo ${moduleId}: ${module.title}</h3>
+
+                <label class="block text-gray-700 font-bold mb-2">Título (Ej: Módulo 1: Tema):</label>
+                <input id="adminTitleEditor" type="text" value="${module.title}" class="w-full p-2 border border-gray-300 rounded mb-4">
+                
+                <label class="block text-gray-700 font-bold mb-2">Contenido (HTML permitido):</label>
+                <textarea id="adminContentEditor" class="w-full h-80 p-3 border border-gray-300 rounded font-mono text-sm resize-y mb-6">${module.content.trim()}</textarea>
+                
+                <h4 class="text-xl font-semibold text-red-600 mb-3">Quiz del Módulo (Formato JSON)</h4>
+                <p class="text-sm text-gray-600 mb-2">Estructura requerida: ` + '`[{ "question": "", "options": ["", ""], "correct": 0, "explanation": "" }]`' + `</p>
+                <textarea id="adminQuizEditor" class="w-full h-64 p-3 border border-gray-300 rounded font-mono text-sm resize-y">${quizJSON}</textarea>
+            `;
+
+            document.getElementById('adminModuleEditor').innerHTML = editorHTML;
+        }
+
+        function saveCourseData() {
+            const message = document.getElementById('adminMessage');
+            message.textContent = '';
+            
+            // 1. Recopilar datos del módulo activo en el editor
+            const titleEditor = document.getElementById('adminTitleEditor');
+            const contentEditor = document.getElementById('adminContentEditor');
+            const quizEditor = document.getElementById('adminQuizEditor');
+
+            if (!titleEditor || !contentEditor || !quizEditor) {
+                 message.textContent = "Error: La interfaz del editor no está completamente cargada.";
+                 return;
             }
-        };
+
+            try {
+                // 2. Parsear y validar el quiz JSON
+                const newQuiz = JSON.parse(quizEditor.value);
+                if (!Array.isArray(newQuiz) || newQuiz.some(q => !q.question || !Array.isArray(q.options) || typeof q.correct !== 'number')) {
+                    message.textContent = "❌ Error: La estructura del Quiz JSON es inválida o incompleta.";
+                    return;
+                }
+
+                // 3. Buscar el índice del módulo actual
+                const moduleIndex = courseData.findIndex(m => m.id === currentModuleId);
+                if (moduleIndex === -1) {
+                    message.textContent = "Error: Módulo no encontrado para guardar.";
+                    return;
+                }
+
+                // 4. Aplicar los cambios al courseData global
+                courseData[moduleIndex].title = titleEditor.value;
+                courseData[moduleIndex].content = contentEditor.value;
+                courseData[moduleIndex].quiz = newQuiz;
+
+                // 5. Guardar en localStorage
+                localStorage.setItem('cnciMentorCourseData', JSON.stringify(courseData));
+                message.textContent = "✅ ¡Datos del Módulo " + currentModuleId + " guardados y actualizados correctamente!";
+                
+                // 6. Recargar para salir del modo Admin
+                setTimeout(() => {
+                    loadModule(currentModuleId);
+                }, 1500);
+
+            } catch (e) {
+                message.textContent = `❌ Error al guardar datos: ${e.message}`;
+            }
+        }
         
-        // --- Funciones CRUD de Contenido, Preguntas y Referencias (GLOBAL) ---
-        window.addContentItem = (mIndex) => { courseData.modules[mIndex].content.push({ type: "paragraph", text: "Nuevo párrafo añadido." }); renderAdminPanel(); };
-        window.removeContentItem = (mIndex, cIndex) => { courseData.modules[mIndex].content.splice(cIndex, 1); renderAdminPanel(); };
-        window.addQuestion = (mIndex) => { courseData.modules[mIndex].questions.push({ text: "¿Nueva pregunta de comprensión?", options: ["Opción A", "Opción B", "Opción C"], correctIndex: 0 }); renderAdminPanel(); };
-        window.removeQuestion = (mIndex, qIndex) => { courseData.modules[mIndex].questions.splice(qIndex, 1); renderAdminPanel(); };
-        window.addOption = (mIndex, qIndex) => { 
-            if (!courseData.modules[mIndex].questions[qIndex].options) courseData.modules[mIndex].questions[qIndex].options = [];
-            courseData.modules[mIndex].questions[qIndex].options.push(`Nueva Opción ${String.fromCharCode(65 + (courseData.modules[mIndex].questions[qIndex].options.length))}`); renderAdminPanel(); 
+        // Función para descargar el placeholder
+        function downloadPlaceholder(moduleId) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 200;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#E5E7EB'; // gray-200
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#9CA3AF'; // gray-400
+            ctx.lineWidth = 4;
+            ctx.setLineDash([10, 5]);
+            ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+            ctx.fillStyle = '#6B7280'; // gray-600
+            ctx.font = '20px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`Imagen Módulo ${moduleId} (Placeholder)`, canvas.width / 2, canvas.height / 2);
+            
+            const dataURL = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = `CNCI_Mentor_Placeholder_M${moduleId}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // --- FUNCIONES DE NAVEGACIÓN Y RENDERIZADO ---
+
+        // Función para renderizar el menú lateral
+        function renderMenu() {
+            const menu = document.getElementById('moduleMenu');
+            menu.innerHTML = courseData.map(module => `
+                <a class="module-link flex items-center ${module.id === currentModuleId && !isQuizActive ? 'active' : ''}" data-module-id="${module.id}" onclick="loadModule(${module.id})">
+                    <span class="mr-3 text-2xl">${module.id === 1 ? '✨' : module.id === 2 ? '🛡️' : module.id === 3 ? '🎓' : module.id === 4 ? '🚀' : module.id === 5 ? '📊' : '✅'}</span>
+                    <span>${module.title.split(': ')[0]}: ${module.title.split(': ')[1]}</span>
+                </a>
+            `).join('');
+        }
+
+        // Función para cargar el contenido del módulo
+        function loadModule(moduleId) {
+            currentModuleId = moduleId;
+            isQuizActive = false;
+            quizResults = null; // Reiniciar resultados al cargar un módulo
+            const module = courseData.find(m => m.id === moduleId);
+            if (!module) {
+                // Si el módulo no existe (ej. fue eliminado en admin), ir al primero
+                loadModule(courseData[0].id);
+                return;
+            }
+            document.getElementById('contentArea').innerHTML = module.content;
+            renderMenu();
+            // Cerrar sidebar en móvil al seleccionar módulo
+            if (window.innerWidth < 768) {
+                toggleSidebar();
+            }
+        }
+
+        // Función para iniciar el Quiz
+        function startQuiz(moduleId) {
+            currentModuleId = moduleId;
+            isQuizActive = true;
+            quizResults = null; // Asegurar que no haya resultados anteriores
+            const module = courseData.find(m => m.id === moduleId);
+            
+            let quizHTML = `
+                <h2 class="text-3xl font-bold text-orange-600 mb-8">${module.title.split(':')[0]}: Quiz de Comprensión 🧠</h2>
+                <form id="quizForm" class="space-y-10">
+            `;
+
+            module.quiz.forEach((q, index) => {
+                quizHTML += `
+                    <div id="q-${index + 1}" class="p-5 bg-gray-50 rounded-xl shadow-lg border-t-4 border-orange-500">
+                        <p class="font-semibold text-xl text-blue-800 mb-4">Pregunta ${index + 1}:</p>
+                        <p class="text-lg text-gray-700 mb-5">${q.question}</p>
+                        <div class="space-y-3">
+                `;
+                q.options.forEach((option, optionIndex) => {
+                    // Usar un nombre de grupo único para cada pregunta
+                    const radioName = `q${index}`;
+                    quizHTML += `
+                        <label class="flex items-center p-3 bg-white rounded-lg shadow-sm hover:bg-orange-100 quiz-option">
+                            <input type="radio" name="${radioName}" value="${optionIndex}" class="h-5 w-5 text-orange-600 border-gray-300 focus:ring-orange-500">
+                            <span class="ml-3 text-base text-gray-700">${option}</span>
+                        </label>
+                    `;
+                });
+                quizHTML += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            quizHTML += `
+                </form>
+                <div class="flex justify-center mt-12">
+                    <button onclick="submitQuiz()" class="bg-green-600 text-white font-bold py-4 px-10 rounded-full text-xl shadow-xl hover:bg-green-700 transition duration-300 transform hover:scale-105">
+                        ¡Finalizar y Calificar! 🎉
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('contentArea').innerHTML = quizHTML;
+            renderMenu();
+            
+            // SCROLL TO TOP: Implementación de la solicitud del usuario
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Función para enviar y calificar el Quiz
+        function submitQuiz() {
+            const module = courseData.find(m => m.id === currentModuleId);
+            const form = document.getElementById('quizForm');
+            let score = 0;
+            let totalQuestions = module.quiz.length;
+            const userAnswers = [];
+
+            // Recoger respuestas del usuario y calificar
+            module.quiz.forEach((q, index) => {
+                const radioName = `q${index}`;
+                const selectedOption = form.querySelector(`input[name="${radioName}"]:checked`);
+                const userAnswerIndex = selectedOption ? parseInt(selectedOption.value) : -1;
+                
+                const isCorrect = userAnswerIndex === q.correct;
+                if (isCorrect) {
+                    score++;
+                }
+
+                userAnswers.push({
+                    questionIndex: index,
+                    userAnswerIndex: userAnswerIndex,
+                    isCorrect: isCorrect
+                });
+            });
+
+            quizResults = { score, totalQuestions, userAnswers };
+            renderQuizResults(module, quizResults);
+        }
+
+        // Función para renderizar los resultados del Quiz
+        function renderQuizResults(module, results) {
+            const passThreshold = results.totalQuestions; // Para aprobar, debe ser 100% correcto según el enunciado
+            const isApproved = results.score === passThreshold;
+
+            let resultsHTML = `
+                <div class="text-center p-8 rounded-2xl ${isApproved ? 'bg-green-100 border-4 border-green-600' : 'bg-red-100 border-4 border-red-600'} shadow-2xl animate-in fade-in zoom-in duration-500">
+                    <div class="text-7xl mb-4">${isApproved ? '✅' : '❌'}</div>
+                    <h2 class="text-4xl font-extrabold ${isApproved ? 'text-green-800' : 'text-red-800'} mb-2">
+                        ${isApproved ? '¡Felicidades, Quiz Aprobado! 🎉' : '¡Sigue Intentándolo!'}
+                    </h2>
+                    <p class="text-2xl text-gray-700 mb-6">Tu Calificación: <span class="font-bold">${results.score} de ${results.totalQuestions} aciertos.</span></p>
+                    <p class="text-lg ${isApproved ? 'text-green-700' : 'text-red-700'} font-semibold">
+                        ${isApproved 
+                            ? 'Has demostrado dominio completo del módulo. ¡No olvides tomar una captura de pantalla para tu coordinador!' 
+                            : 'Debes tener todos los aciertos correctos para aprobar. Revisa las respuestas y vuelve a intentarlo.'
+                        }
+                    </p>
+                    <button onclick="loadModule(${module.id})" class="mt-8 bg-blue-600 text-white font-bold py-3 px-6 rounded-full hover:bg-blue-700 transition duration-300 transform hover:scale-105">
+                        Volver al Módulo ${module.id}
+                    </button>
+                    ${!isApproved ? `<button onclick="startQuiz(${module.id})" class="mt-8 ml-4 bg-orange-500 text-white font-bold py-3 px-6 rounded-full hover:bg-orange-600 transition duration-300 transform hover:scale-105">
+                        Reintentar Quiz
+                    </button>` : ''}
+                </div>
+                
+                <h3 class="text-3xl font-bold text-blue-800 mt-12 mb-6">Revisión de Respuestas 🧐</h3>
+                <div class="space-y-6">
+            `;
+
+            // Muestra la revisión pregunta por pregunta
+            module.quiz.forEach((q, index) => {
+                const result = results.userAnswers.find(a => a.questionIndex === index);
+                const userAnswerIndex = result.userAnswerIndex;
+                const isCorrect = result.isCorrect;
+
+                resultsHTML += `
+                    <div class="p-4 rounded-xl shadow-lg ${isCorrect ? 'correct-answer' : 'incorrect-answer'}">
+                        <p class="font-bold text-lg mb-2 flex justify-between items-center">
+                            Pregunta ${index + 1}: ${isCorrect ? 'Correcta ✅' : 'Incorrecta ❌'}
+                        </p>
+                        <p class="text-md text-gray-700 font-medium">${q.question}</p>
+                        <div class="mt-3 space-y-2">
+                `;
+
+                q.options.forEach((option, optionIndex) => {
+                    let optionClass = '';
+                    if (optionIndex === q.correct) {
+                        // Respuesta correcta
+                        optionClass = 'bg-green-200 font-bold border-green-700 border';
+                    } else if (optionIndex === userAnswerIndex && !isCorrect) {
+                        // Respuesta del usuario si es incorrecta
+                        optionClass = 'bg-red-200 font-bold border-red-700 border';
+                    }
+
+                    resultsHTML += `
+                        <div class="p-2 rounded-lg text-sm ${optionClass}">
+                            ${optionIndex === q.correct ? '✔️' : (optionIndex === userAnswerIndex && !isCorrect ? 'Tu Respuesta 🟫' : 'Opción')} ${option}
+                        </div>
+                    `;
+                });
+
+                if (!isCorrect) {
+                    resultsHTML += `
+                        <p class="mt-3 text-sm text-gray-800 border-t pt-2 border-gray-400">
+                            <span class="font-bold text-blue-800">Explicación:</span> ${q.explanation}
+                        </p>
+                    `;
+                }
+
+                resultsHTML += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsHTML += `</div>`;
+            document.getElementById('contentArea').innerHTML = resultsHTML;
+        }
+
+        // Función para alternar el menú en dispositivos móviles
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('menuBackdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('translate-x-0');
+            backdrop.classList.toggle('open');
+        }
+
+
+        // --- INICIALIZACIÓN ---
+        window.onload = () => {
+            // Cargar datos persistentes si existen
+            const savedData = localStorage.getItem('cnciMentorCourseData');
+            if (savedData) {
+                try {
+                    courseData = JSON.parse(savedData);
+                } catch (e) {
+                    console.error("Error al cargar datos de localStorage, usando datos iniciales.", e);
+                    courseData = initialCourseData;
+                }
+            } else {
+                courseData = initialCourseData;
+            }
+
+            // Asegurar que el módulo actual exista
+            if (!courseData.find(m => m.id === currentModuleId)) {
+                currentModuleId = courseData[0].id;
+            }
+
+            renderMenu();
+            loadModule(currentModuleId); // Cargar el módulo inicial
         };
-        window.addReference = () => { if (!courseData.references) courseData.references = []; courseData.references.push({ author: "Autor, A. (Año).", title: "Título del Artículo/Libro.", source: "Fuente o Editorial." }); renderAdminPanel(); };
-        window.removeReference = (rIndex) => { courseData.references.splice(rIndex, 1); renderAdminPanel(); };
 
-
-        // --- Datos Iniciales Por Defecto ---
-        const initialCourseData = {
-            title: "Guía de Éxito al Nuevo Ingreso: Capacitación de Mentores",
-            description: "Este curso en línea tiene una duración de 4 semanas, con una dedicación estimada de 5-7 horas por semana. Es 100% asincrónico para adaptarse a su avance académico superior al 70%.",
-            modules: [
-                {
-                    id: 1,
-                    title: "Módulo 1: Fundamentos del Peer Mentoring y el Rol del Mentor (Semana 1) 🚀",
-                    content: [
-                        { type: "heading", text: "Objetivo General" },
-                        { type: "paragraph", text: "Comprender la filosofía del programa, el compromiso de Servicio Social y establecer los límites éticos y funcionales del rol del Peer Mentor." },
-                        { type: "heading", text: "Video Introductorio" },
-                        { 
-                            type: "html_embed", 
-                            html: `<iframe width="560" height="315" src="https://www.youtube.com/embed/yP_FqJz4iW8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>` 
-                        },
-                        { type: "heading", text: "Contenido Detallado" },
-                        { type: "paragraph", text: "1. *Filosofía del Peer Mentoring CNCI (E-Mentoring):* El modelo se centra en la *relación horizontal* (peer-to-peer) y el *apoyo psicológico-social y académico inicial* para la retención. Su principal logro es que el Mentoreado desarrolle *autonomía* y *autoeficacia* en el entorno virtual." },
-                        { type: "paragraph", text: "2. *Compromiso de Servicio Social y Consistencia:* Se detallan los *6 meses de servicio* y la importancia de la *frecuencia de contacto* (ej. una reunión virtual sincrónica o contacto asincrónico por chat/email por semana). Consistencia es clave." },
-                        { type: "paragraph", text: "3. *Los 4 Roles Clave del Mentor:* Su rol se divide en Guía Académico/Estratégico, Enlace/Facilitador de Recursos, Modelo a Seguir, y Primer Soporte Emocional." },
-                        { type: "paragraph", text: "4. *Ética, Confidencialidad y el Protocolo de Escalada:* La *Regla de las '3 C'* (Confidencialidad, Consistencia y Competencia) es fundamental. El *Protocolo de Escalada* indica los pasos exactos para reportar situaciones de riesgo (ej. crisis emocionales, fraude académico) al Coordinador del programa." },
-                    ],
-                    questions: [
-                        { text: "¿Cuál es el principal objetivo a largo plazo del rol del Mentor en el programa de E-Mentoring CNCI?", options: ["A) Garantizar que el alumno obtenga las mejores calificaciones en sus cursos.", "B) Fomentar la autonomía y la autoeficacia del Mentoreado en el entorno de aprendizaje virtual.", "C) Reemplazar las funciones de los profesores y los asesores académicos.", "D) Ofrecer terapia y consejería profunda a los alumnos de nuevo ingreso."], correctIndex: 1, },
-                        { text: "Según el protocolo ético, ¿cuál de las siguientes situaciones debe ser reportada inmediatamente (escalada)?", options: ["A) Un alumno que no ha subido una tarea a tiempo.", "B) Un alumno que le pide una recomendación de materia.", "C) Un alumno que expresa pensamientos de autolesión o abandono inminente.", "D) Un alumno que se queja del alto costo de la colegiatura."], correctIndex: 2, },
-                        { text: "¿Qué implica la 'Consistencia' como regla del Mentor?", options: ["A) Tener el mismo tono de voz siempre.", "B) Establecer una frecuencia de contacto clara y mantener ese compromiso durante los 6 meses.", "C) Usar siempre el mismo fondo virtual en las videollamadas.", "D) Solo contactar al mentoreado si este lo solicita primero."], correctIndex: 1, },
-                        { text: "El Peer Mentor asume el rol de 'Enlace/Facilitador de Recursos' al:", options: ["A) Resolver personalmente todos los problemas técnicos del mentoreado.", "B) Conectar al alumno con el servicio universitario específico (ej. Mesa de Ayuda) para que reciba atención experta.", "C) Dar su opinión personal sobre la calidad de los recursos.", "D) Ignorar las solicitudes de ayuda y solo hablar de temas académicos."], correctIndex: 1, },
-                        { text: "La modalidad de apoyo en línea entre pares se denomina:", options: ["A) Couching.", "B) E-Mentoring.", "C) Peer-tutoring.", "D) Asesoría profesional."], correctIndex: 1, },
-                    ],
-                },
-                {
-                    id: 2,
-                    title: "Módulo 2: Habilidades Blandas y Referencia Efectiva (Semana 2) 💬",
-                    content: [
-                        { type: "heading", text: "Objetivo General" },
-                        { type: "paragraph", text: "Desarrollar habilidades de comunicación y empatía adaptadas al entorno virtual y aprender a referir a los alumnos a los servicios de apoyo de la CNCI." },
-                        { type: "heading", text: "Contenido Detallado" },
-                        { type: "paragraph", text: "1. *Técnicas de Comunicación:* Uso de preguntas abiertas, la *paráfrasis* ('Si entendí bien, lo que te preocupa es...'), y *Asertividad* para ser directo y respetuoso al establecer límites o dar indicaciones." },
-                        { type: "paragraph", text: "2. *Construcción de Confianza (Rapport) a Distancia:* Se usan estrategias de *presencia social* para compensar la falta de contacto físico, como la puntualidad y el uso de la cámara en videollamadas." },
-                        { type: "paragraph", text: "3. *Motivación y Metas SMART:* El Mentor ayuda a descomponer grandes objetivos en metas *SMART* (Específicas, Medibles, Alcanzables, Relevantes, con Tiempo definido) para dar un sentido de logro inmediato y control." },
-                        { type: "html_embed", html: `<img src="https://placehold.co/800x300/3b82f6/ffffff?text=Diagrama+de+Metas+SMART" alt="Diagrama ilustrativo de metas SMART">` },
-                        { type: "paragraph", text: "4. *Referencia Efectiva: El Puente de 3 Pasos:* Se formaliza el protocolo: *1. Detección* (identificar señal de riesgo), *2. Conversación de Validación* (confirmar que el alumno acepta buscar ayuda), y *3. Conexión/Notificación* (proporcionar el recurso y notificar al Coordinador)." },
-                    ],
-                    questions: [
-                        { text: "La Paráfrasis es una técnica clave de Escucha Activa que implica:", options: ["A) Hablar en voz alta sobre el problema.", "B) Repetir o resumir lo que el Mentoreado dijo con sus propias palabras para confirmar la comprensión.", "C) Evitar dar cualquier respuesta al mentoreado.", "D) Pedirle al mentoreado que escriba todo en mayúsculas."], correctIndex: 1, },
-                        { text: "Cuál de estas opciones ejemplifica mejor una meta SMART:", options: ["A) Ser un buen estudiante algún día.", "B) Entregar todas las tareas de la semana.", "C) Completar las lecturas del Módulo 2 del Curso de Inducción y subir el cuestionario antes del domingo a las 11:59 pm.", "D) Dejar de procrastinar para siempre."], correctIndex: 2, },
-                        { text: "Para establecer Rapport en un entorno virtual, es esencial que el Mentor priorice:", options: ["A) El envío constante de cadenas de memes.", "B) La crítica al modelo educativo anterior de la Universidad.", "C) La puntualidad en las interacciones y la demostración de presencia social.", "D) Evitar cualquier contacto visual en la videollamada."], correctIndex: 2, },
-                        { text: "La última fase del protocolo de Referencia Efectiva ('Conexión/Notificación') requiere que el Mentor:", options: ["A) Se olvide del caso, pues ya lo refirió.", "B) Notifique al Coordinador del programa después de conectar al alumno con el recurso especializado.", "C) Le exija al Mentoreado que lo mantenga informado de su avance en el servicio de ayuda.", "D) Intente resolver el problema especializado por su cuenta."], correctIndex: 1, },
-                        { text: "¿Qué significa la Asertividad en la comunicación Mentor-Mentoreado?", options: ["A) Imponer sus ideas sin escuchar.", "B) Ser agresivo al dar indicaciones.", "C) Expresar sus límites y opiniones de forma clara, directa y respetuosa.", "D) Quedarse callado para no incomodar."], correctIndex: 2, },
-                    ],
-                },
-                {
-                    id: 3,
-                    title: "Módulo 3: Dominio del Curso de Inducción y Recursos Universitarios (Semana 3) 💻",
-                    content: [
-                        { type: "heading", text: "Objetivo General" },
-                        { type: "paragraph", text: "Adquirir un conocimiento experto del Curso de Inducción, la plataforma, y todos los recursos de apoyo disponibles en la CNCI." },
-                        { type: "heading", text: "Contenido Detallado" },
-                        { type: "paragraph", text: "1. *Inmersión Total en el Curso de Inducción:* Es la piedra angular del apoyo. El Mentor debe conocer de memoria la estructura de los módulos y las *preguntas trampa* donde los alumnos suelen atascarse (ej. uso correcto de citación, diferencia entre actividad formativa y de evaluación)." },
-                        { type: "paragraph", text: "2. *El Ecosistema Tecnológico del Mentoreado:* Identificar y explicar el uso del *LMS/Aula Virtual*, el *Portal de Servicios al Estudiante* (trámites) y el *Correo Institucional*. Estos son los tres pilares de la experiencia en línea." },
-                        { type: "paragraph", text: "3. *El Mapa de Referencia CNCI:* Conocer el directorio actualizado y filtrado con los contactos directos para *Mesa de Ayuda Técnica*, *Asesoría Académica*, *Departamento de Trámites y Becas*, y *Orientación Psicopedagógica*." },
-                        { type: "paragraph", text: "4. *Estrategias de Apoyo Académico Específico:* Cómo ayudar a un alumno virtual a organizarse: Uso de agendas digitales, aplicación de la *Técnica Pomodoro* para el estudio en línea, y cómo maximizar el uso de los recursos de la *Biblioteca Digital*." },
-                    ],
-                    questions: [
-                        { text: "La principal causa de dificultad del nuevo ingreso con el Curso de Inducción es generalmente:", options: ["A) La falta de interés en los temas.", "B) La familiarización y el correcto uso de la Plataforma LMS, las herramientas de evaluación y el modelo de aprendizaje virtual.", "C) El alto nivel de la información teórica.", "D) La duración excesiva de los videos."], correctIndex: 1, },
-                        { text: "Si un Mentoreado requiere solicitar una constancia de estudios, el Mentor debe referirlo al:", options: ["A) La Biblioteca Digital de la CNCI.", "B) El departamento de Orientación Psicopedagógica.", "C) El Portal de Servicios al Estudiante o el Departamento de Trámites y Becas.", "D) El profesor de su primera materia."], correctIndex: 2, },
-                        { text: "Cuál de estas técnicas se recomienda especialmente para ayudar a un Mentoreado a gestionar su tiempo de estudio en línea:", options: ["A) Dejar todas las tareas para el último día.", "B) Trabajar 10 horas seguidas sin descanso.", "C) Implementar la Técnica Pomodoro (ej. 25 minutos de estudio concentrado seguidos de 5 minutos de descanso).", "D) Estudiar sin un horario fijo."], correctIndex: 2, },
-                        { text: "El Mentor debe conocer la diferencia entre una actividad formativa y una actividad de evaluación porque:", options: ["A) Ambas tienen el mismo peso en la calificación final.", "B) La actividad de evaluación impacta directamente la calificación y requiere una atención especial a las rúbricas y el tiempo límite.", "C) La actividad formativa no es necesaria.", "D) Solo los profesores saben la diferencia."], correctIndex: 1, },
-                        { text: "Ante un problema para acceder a la Plataforma LMS con su contraseña, el Mentoreado debe contactar inmediatamente a:", options: ["A) El Rector de la Universidad.", "B) La Mesa de Ayuda Técnica o Soporte de TI de la CNCI.", "C) Un compañero de clase.", "D) El departamento de becas."], correctIndex: 1, },
-                    ],
-                },
-                {
-                    id: 4,
-                    title: "Módulo 4: Gestión, Reporte y Plan de Acción (Semana 4) 📅",
-                    content: [
-                        { type: "heading", text: "Objetivo General" },
-                        { type: "paragraph", text: "Asegurar el entendimiento del proceso administrativo del Servicio Social y la elaboración de un plan de trabajo estructurado para el período de 6 meses." },
-                        { type: "heading", text: "Contenido Detallado" },
-                        { type: "paragraph", text: "1. *Llenado Correcto del Reporte del Mentor (Bitácora de Servicio):* Es la evidencia de la labor de Servicio Social. Debe incluir la *descripción clara de la actividad*, la *duración (horas)* y el *objetivo de la sesión de mentoría*." },
-                        { type: "paragraph", text: "2. *Plan de Actividades a 6 Meses y Prohibiciones:* Se divide en *Fase de Inicio* (Inducción y LMS), *Fase de Mantenimiento* (Estrategias Académicas), y *Fase de Cierre* (Evaluación). Prohibición clave: *Nunca* manejar claves de acceso ni hacer tareas." },
-                        { type: "paragraph", text: "3. *Elaboración del Plan de Contacto y Contingencia:* Taller práctico para definir herramientas de comunicación y un *plan de contingencia* ante la falta de respuesta del Mentoreado (pasos a seguir tras dos contactos sin respuesta)." },
-                    ],
-                    questions: [
-                        { text: "La Bitácora de Servicio debe incluir obligatoriamente:", options: ["A) La calificación de todas las materias del Mentoreado.", "B) Chismes sobre el campus.", "C) La descripción de la actividad realizada, la duración y el objetivo de la sesión de mentoría.", "D) Una lista de sus comidas favoritas."], correctIndex: 2, },
-                        { text: "Si un Mentoreado no responde a dos intentos de contacto, ¿cuál es el paso a seguir del Mentor?", options: ["A) Abandonar el caso y reportarlo como 'deserción'.", "B) Intentar contactar a la familia del Mentoreado.", "C) Aplicar el Plan de Contingencia e informar al Coordinador del programa.", "D) Esperar indefinidamente a que el Mentoreado responda."], correctIndex: 2, },
-                        { text: "La actividad prioritaria del Mentor durante la Fase de Inicio (primer mes) debe centrarse en:", options: ["A) Ayudar al alumno a elegir su tema de tesis.", "B) La revisión de materias avanzadas.", "C) El apoyo al Curso de Inducción, la orientación en el LMS y la gestión del tiempo para el estudio virtual.", "D) La búsqueda de un trabajo a tiempo parcial."], correctIndex: 2, },
-                        { text: "Cuál de las siguientes acciones está terminantemente prohibida para el Peer Mentor?", options: ["A) Sugerir una técnica de gestión del tiempo.", "B) Revisar el contenido del Curso de Inducción.", "C) Manejar las contraseñas del Mentoreado o realizar tareas en su nombre.", "D) Referir al Mentoreado a la biblioteca virtual."], correctIndex: 2, },
-                        { text: "Para asegurar la validación de sus horas de Servicio Social, el Mentor debe:", options: ["A) Declarar las horas sin ninguna documentación.", "B) Realizar el registro detallado y la entrega puntual de la Bitácora de Servicio.", "C) Pedir a un amigo que firme las horas.", "D) Solo registrar las horas de estudio individual."], correctIndex: 1, },
-                    ],
-                },
-            ],
-            references: [
-                { author: "Alleman, N. F., & Clarke, C. B. (2018).", title: "Developing and sustaining peer coaching and mentoring programs.", source: "Routledge." },
-                { author: "Crisp, G. (2017).", title: "Peer mentoring in higher education: a systematic review.", source: "Higher Education Research & Development, 36(6), 1247-1264." },
-                { author: "Jacobi, M. (1991).", title: "Mentoring programs in higher education: A review of the literature.", source: "Review of Educational Research, 61(4), 461-471." },
-                { author: "Terrion, J. L., & Leonard, D. (2007).", title: "A taxonomy of the characteristics of student peer mentors.", source: "Mentoring & Tutoring: Partnership in Learning, 15(4), 424-439." },
-                { author: "University of New Mexico (UNM).", title: "Mentor Training Manuals (Adaptado a e-Mentoring).", source: "Guía Operativa Institucional." },
-            ]
-        };
-
-        // Iniciar la aplicación al cargar la ventana
-        window.onload = initFirebaseAndLoadContent;
     </script>
 </body>
 </html>
